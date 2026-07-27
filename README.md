@@ -1,6 +1,5 @@
 ---
 title: Arctus AI
-emoji: 🝔
 colorFrom: blue
 colorTo: purple
 sdk: docker
