@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Arctus AI | Authentication & Workspace</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body data-theme="dark">
+
+<div class="bg-glow"></div>
+
+<div class="scene-container" id="scene">
+
+  <!-- ═══ AUTHENTICATION SCREEN ═══ -->
+  <div class="auth-wrapper glass-3d float-z" id="authScreen">
+    <div style="font-size:2.5rem; margin-bottom:4px;">🝔</div>
+    <h2>Arctus Swarm Login</h2>
+    <p style="font-size:0.85rem; color:var(--text-muted);">Multi-agent orchestration · Plan → Validate → Execute → Verify</p>
+    <input type="email" class="auth-input float-z" placeholder="admin@globalinfotech.com">
+    <input type="password" class="auth-input float-z" placeholder="Password">
+    <button class="auth-btn float-z-high" onclick="handleLogin()">Access Terminal</button>
+    <div style="font-size: 0.8rem; color: var(--text-muted); margin: 10px 0;">OR</div>
+    <div class="social-login float-z">
+      <button class="social-btn" onclick="handleLogin()">Google</button>
+      <button class="social-btn" onclick="handleLogin()">GitHub</button>
+    </div>
+  </div>
+
+  <!-- ═══ MAIN DASHBOARD ═══ -->
+  <div class="dashboard-layout" id="dashboardScreen">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <!-- Brand -->
+      <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">
+        <span style="font-size:1.8rem;">🝔</span>
+        <div>
+          <div style="font-weight:700; font-size:1rem;">Arctus.ai</div>
+          <div style="font-size:0.7rem; color:var(--text-muted);">Swarm Orchestrator</div>
+        </div>
+      </div>
+
+      <!-- New Session Button -->
+      <button class="new-chat-btn float-z-high" onclick="startNewChat()">+ New Session</button>
+
+      <!-- Plugins Section -->
+      <div>
+        <div class="section-title">🧩 Plugins</div>
+        <div class="list-item" onclick="document.getElementById('pluginFile').click()">
+          <span>📦 Add from File</span>
+        </div>
+        <input type="file" id="pluginFile" style="display:none;" onchange="handlePluginUpload(event)">
+        <div class="list-item" onclick="alert('Opening Web Plugin Repository...')">
+          <span>🌐 Add from Internet</span>
+        </div>
+      </div>
+
+      <!-- History Section -->
+      <div>
+        <div class="section-title">📜 Chat History</div>
+        <div id="history-list">
+          <div class="list-item" onclick="loadHistory('debug-moltbot')"><span>Debug Moltbot Docker</span></div>
+          <div class="list-item" onclick="loadHistory('config-qiskit')"><span>Configure Qiskit Env</span></div>
+          <div class="list-item" onclick="loadHistory('vps-setup')"><span>VPS Setup Logs</span></div>
+        </div>
+      </div>
+
+      <!-- Management shortcuts -->
+      <div>
+        <div class="section-title">🔧 Management</div>
+        <div class="list-item" onclick="scrollToSection('mgmt-cards')"><span>🤖 Agents / MCP / Consortium</span></div>
+      </div>
+    </aside>
+
+    <!-- WORKSPACE -->
+    <main class="workspace">
+
+      <!-- Top Nav -->
+      <nav class="top-nav glass-panel float-z">
+        <div style="display:flex; align-items:center; gap:12px;">
+          <div style="font-size:0.85rem; color:var(--text-muted);">Status: <span style="color:var(--accent)" id="statusIndicator">Connected</span></div>
+          <div class="usage-bar" id="usageWidget">-</div>
+        </div>
+        <div class="nav-right">
+          <button class="btn-nav" onclick="toggleTheme()">🌓 Theme</button>
+          <button class="btn-nav" onclick="refreshAll()">↻ Refresh</button>
+          <!-- Profile Dropdown -->
+          <div class="profile-wrapper">
+            <button class="btn-nav" style="border-color:var(--accent);" id="profileLabel">free@arctus ~</button>
+            <div class="profile-menu glass-panel float-z-highest">
+              <div style="font-size:0.7rem; color:var(--text-muted); padding:4px 12px 8px; text-transform:uppercase; letter-spacing:1px;">Subscription Tier</div>
+              <div class="profile-item active-tier" data-tier="free" onclick="setTier('free')">⚡ Free</div>
+              <div class="profile-item" data-tier="tier1" onclick="setTier('tier1')">🥈 Tier 1 — $17/mo</div>
+              <div class="profile-item" data-tier="tier2" onclick="setTier('tier2')">🥇 Tier 2 — $80/mo</div>
+              <div class="profile-item" data-tier="tier3" onclick="setTier('tier3')">💎 Tier 3 — $180/mo</div>
+              <div class="profile-item" data-tier="payg" onclick="setTier('payg')">💳 Pay As You Go</div>
+              <div class="profile-divider"></div>
+              <div class="profile-item">⚙️ ./settings.sh</div>
+              <div class="profile-item">🛡️ ./privacy_statement</div>
+              <div class="profile-item disabled">💳 ./billing_info</div>
+              <div class="profile-divider"></div>
+              <div class="profile-item" style="color:#ff5f56;" onclick="location.reload()">🚪 exit()</div>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <!-- Management Cards (Agents / MCP / Consortium) -->
+      <section class="management-grid" id="mgmt-cards">
+        <!-- Agents card -->
+        <div class="glass-panel card">
+          <h2>🤖 Agents</h2>
+          <div id="agent-summary" class="kv">Loading…</div>
+          <button class="btn" onclick="refreshAgents()">Refresh</button>
+        </div>
+
+        <!-- MCP connectors card -->
+        <div class="glass-panel card">
+          <h2>🔌 MCP Connectors</h2>
+          <div id="mcp-list" class="kv">Loading…</div>
+          <button class="btn connector-btn" onclick="openMCPModal()">+ Add Connector</button>
+        </div>
+
+        <!-- Consortium card -->
+        <div class="glass-panel card">
+          <h2>🌐 Consortium Peers</h2>
+          <div id="peer-list" class="kv">Loading…</div>
+          <button class="btn" onclick="refreshPeers()">Refresh</button>
+        </div>
+      </section>
+
+      <!-- Terminal Stream -->
+      <div class="terminal glass-panel float-z" id="terminal">
+        <div class="log"><span class="system">system:</span> Secure connection established. Workspace ready.</div>
+      </div>
+
+      <!-- Input Bar -->
+      <div class="input-bar glass-panel float-z-high">
+        <!-- File Attach -->
+        <div class="file-btn" onclick="document.getElementById('fileUp').click()">+</div>
+        <input type="file" id="fileUp" style="display:none;" onchange="handleFile(event)">
+
+        <!-- Research/Thinking Dropdown -->
+        <select class="control-dropdown" id="agentMode">
+          <option value="simple">⚡ Simple</option>
+          <option value="high">🔥 High</option>
+          <option value="think">🧠 Think</option>
+          <option value="research">🔍 Research</option>
+        </select>
+
+        <!-- MCP Connector -->
+        <button class="mcp-btn" onclick="connectMCP()">🔌 Connect MCP</button>
+
+        <span style="color:var(--accent); font-family:'Fira Code',monospace; font-weight:bold; margin-left:6px;">></span>
+
+        <!-- CLI Input -->
+        <input type="text" class="cli-input" placeholder="Enter instructions..." id="cmdInput" onkeydown="handleEnter(event)">
+      </div>
+    </main>
+  </div>
+
+</div>
+
+<!-- MCP Modal (kept outside scene for z-index stacking) -->
+<div id="mcp-modal" class="modal hidden">
+  <div class="glass-panel modal-card">
+    <h2>Add MCP Connector</h2>
+    <label>Name <input id="mcp-name" type="text" placeholder="github" /></label>
+    <label>Transport
+      <select id="mcp-transport">
+        <option value="http">http</option>
+        <option value="stdio">stdio</option>
+      </select>
+    </label>
+    <label>URL (http) <input id="mcp-url" type="text" placeholder="https://mcp.example.com/jsonrpc" /></label>
+    <label>Command (stdio) <input id="mcp-command" type="text" placeholder="/usr/local/bin/mcp-server" /></label>
+    <label>API key (optional) <input id="mcp-key" type="password" /></label>
+    <label>Tools (comma-separated) <input id="mcp-tools" type="text" placeholder="search,read,write" /></label>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeMCPModal()">Cancel</button>
+      <button class="btn primary" onclick="addMCPConnector()">Connect</button>
+    </div>
+  </div>
+</div>
+
+<script src="/static/app.js"></script>
+</body>
+</html>
