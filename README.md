@@ -1,12 +1,6 @@
 ![Uploading 183e6057-923f-4a2b-88d9-078f23b4febf.jpg…]()
 ---
-title: Arctus AI
-colorFrom: blue
-colorTo: purple
-sdk: docker
-app_port: 7860
-pinned: false
-license: mit
+
 ---
 
 # Arctus.ai
