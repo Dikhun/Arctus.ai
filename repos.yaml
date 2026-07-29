@@ -55,3 +55,60 @@ repos:
   - name: drei
     url: https://github.com/pmndrs/drei.git
     note: "Helpers for react-three-fiber"
+- name: Eagle
+  url: https://github.com/NVlabs/Eagle.git
+  note: "Vision-language models"
+  tags:
+    - vision
+    - multimodal
+    - vlm
+    - image
+  language: Python
+  priority: high
+  - name: TensorRT-LLM
+  url: https://github.com/NVIDIA/TensorRT-LLM.git
+  tags:
+    - llm
+    - inference
+    - gpu
+    - optimization
+  note: "High-performance LLM inference"
+    - name: Eagle
+    url: https://github.com/NVlabs/Eagle.git
+    note: "NVIDIA frontier vision-language models (VLMs)"
+
+  - name: Cosmos
+    url: https://github.com/NVIDIA/Cosmos.git
+    note: "Physical AI world models"
+
+  - name: LocateAnything
+    url: https://github.com/NVlabs/LocateAnything.git
+    note: "Visual grounding and object localization"
+
+  - name: NeMo
+    url: https://github.com/NVIDIA/NeMo.git
+    note: "Enterprise LLM and multimodal AI framework"
+
+  - name: MegaMolBART
+    url: https://github.com/NVIDIA/MegaMolBART.git
+    note: "Molecular foundation model"
+
+  - name: TensorRT-LLM
+    url: https://github.com/NVIDIA/TensorRT-LLM.git
+    note: "High-performance LLM inference"
+
+  - name: NeMo-Guardrails
+    url: https://github.com/NVIDIA/NeMo-Guardrails.git
+    note: "LLM safety and guardrails"
+
+  - name: AI-Workbench
+    url: https://github.com/NVIDIA/AI-Workbench.git
+    note: "Local AI development environment"
+
+  - name: DeepLearningExamples
+    url: https://github.com/NVIDIA/DeepLearningExamples.git
+    note: "Reference AI training and inference models"
+
+  - name: Kaolin
+    url: https://github.com/NVIDIAGameWorks/kaolin.git
+    note: "3D deep learning library"
