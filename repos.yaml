@@ -1,12 +1,14 @@
 # Arctus.ai reference repos
 #
-# These are THIRD-PARTY repositories. Arctus does NOT clone them automatically.
-# Run `python scripts/clone_repos.py` once to fetch them into ./repos (opt-in).
-# Agents can then read from ./repos as grounding material.
-#
-# Cloning is opt-in because some of these are large (resource lists, npm pkgs).
-# You take responsibility for the licenses of each repo you clone.
-
+# # Arctus.ai Enterprise Reference Registry
+# Third-party repositories available to Arctus agents.
+# Agents automatically resolve the best available source:
+#   - Local cache
+#   - Enterprise repository server
+#   - AWS storage
+#   - GitHub (if permitted)
+# Local cloning is optional and primarily for offline development.
+# All repository usage is subject to the respective license terms.
 repos:
   - name: airllm
     url: https://github.com/lyogavin/airllm.git
