@@ -1,469 +1,495 @@
-/* ═══════════════════════════════════════════════════════════════════
-   Arctus.ai — 3D Glassmorphism Dashboard
-   Merged: original glass theme + auth shell + workspace layout
-   ═══════════════════════════════════════════════════════════════════ */
+// app/dashboard/page.tsx
+"use client";
 
-/* ── 1. Core 3D Themes & System Variables ─────────────────────────── */
-:root {
-  /* Dark 3D Glassmorphism (merged) */
-  --bg: #0a0e1a;
-  --bg-gradient: radial-gradient(circle at 20% 0%, rgba(0, 229, 255, 0.15) 0%, #050505 50%),
-                 radial-gradient(circle at 80% 100%, rgba(139, 92, 246, 0.10) 0%, #050505 50%);
-  --glass-bg: rgba(255, 255, 255, 0.06);
-  --glass-highlight: rgba(255, 255, 255, 0.15);
-  --glass-border: rgba(255, 255, 255, 0.18);
-  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-  --glass-shadow-3d: 20px 20px 50px rgba(0, 0, 0, 0.6);
-  --accent: #00e5ff;
-  --accent-color: #00e5ff;
-  --accent-soft: rgba(0, 229, 255, 0.18);
-  --mcp-active: #10b981;
-  --text: #e6f1ff;
-  --text-main: #e6f1ff;
-  --text-muted: #9fb3c8;
-  --text-dim: #9fb3c8;
-  --radius: 16px;
-}
+import React, { useState, useEffect, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Menu,
+  Search,
+  Bell,
+  User,
+  Folder,
+  FileText,
+  Settings,
+  Command,
+  Star,
+  LogOut,
+  Wand2,
+  Terminal as TerminalIcon,
+  Cpu,
+  Server,
+  Layers,
+  Paperclip,
+  Activity,
+  Zap,
+  Moon,
+  Sun,
+  Plus,
+  ShieldCheck,
+  X,
+  ChevronRight,
+  Send,
+  Radio,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { useQuery } from "@tanstack/react-query";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
+import { create } from "zustand";
+import clsx from "clsx";
 
-[data-theme="sky-light"] {
-  --bg: #f0f9ff;
-  --bg-gradient: linear-gradient(135deg, #e0f2fe 0%, #ffffff 50%, #bae6fd 100%);
-  --glass-bg: rgba(255, 255, 255, 0.40);
-  --glass-highlight: rgba(255, 255, 255, 0.90);
-  --glass-border: rgba(14, 165, 233, 0.25);
-  --glass-shadow: 0 8px 32px 0 rgba(14, 165, 233, 0.15);
-  --glass-shadow-3d: 20px 20px 50px rgba(14, 165, 233, 0.2);
-  --accent: #0284c7;
-  --accent-color: #0284c7;
-  --accent-soft: rgba(2, 132, 199, 0.15);
-  --text: #0c4a6e;
-  --text-main: #0c4a6e;
-  --text-muted: #0369a1;
-  --text-dim: #0369a1;
-}
-
-/* ── 2. Base Setup & 3D Scene ──────────────────────────────────────── */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-html, body {
-  height: 100%;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  color: var(--text);
-  background: var(--bg-gradient);
-  background-attachment: fixed;
-  overflow: hidden;
-  perspective: 1500px;
+// ============================================================================
+// 1. Unified State Management (Zustand)
+// ============================================================================
+interface TerminalLog {
+  id: string;
+  type: "prefix" | "system" | "error" | "success";
+  text: string;
+  timestamp: string;
 }
 
-/* Ambient glow */
-.bg-glow {
-  position: fixed;
-  inset: 0;
-  background:
-    radial-gradient(circle at 18% 22%, rgba(0, 229, 255, 0.18), transparent 42%),
-    radial-gradient(circle at 82% 70%, rgba(139, 92, 246, 0.16), transparent 45%);
-  z-index: -1;
-  animation: drift 16s ease-in-out infinite alternate;
-  pointer-events: none;
-}
-@keyframes drift {
-  from { transform: translate3d(0, 0, 0); }
-  to   { transform: translate3d(0, -18px, 0); }
-}
-
-.scene-container {
-  width: 100%;
-  height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transform-style: preserve-3d;
-  transition: transform 0.1s ease-out;
-}
-
-/* ── 3. 3D Glassmorphism Panels ────────────────────────────────────── */
-.glass-panel, .glass-3d {
-  background: var(--glass-bg);
-  backdrop-filter: blur(15px) saturate(140%);
-  -webkit-backdrop-filter: blur(15px) saturate(140%);
-  border: 1px solid var(--glass-border);
-  border-radius: var(--radius);
-  box-shadow: var(--glass-shadow);
+interface DashboardState {
+  sidebarCollapsed: boolean;
+  toggleSidebar: () => void;
+  workspace: string;
+  notifications: number;
+  theme: "dark-glass" | "sky-light";
+  setTheme: (theme: "dark-glass" | "sky-light") => void;
+  mcpActive: boolean;
+  toggleMcp: () => void;
+  isConfigModalOpen: boolean;
+  setConfigModalOpen: (open: boolean) => void;
+  isAuthModalOpen: boolean;
+  setAuthModalOpen: (open: boolean) => void;
+  selectedModel: string;
+  setSelectedModel: (model: string) => void;
+  user: {
+    name: string;
+    avatar: string;
+    tier: string;
+  };
+  terminalLogs: TerminalLog[];
+  addTerminalLog: (log: Omit<TerminalLog, "id" | "timestamp">) => void;
+  clearLogs: () => void;
 }
 
-.glass-3d {
-  border-top: 1px solid var(--glass-highlight);
-  border-left: 1px solid var(--glass-highlight);
-  border-right: 1px solid rgba(255,255,255,0.02);
-  border-bottom: 1px solid rgba(255,255,255,0.02);
-  box-shadow: var(--glass-shadow-3d), inset 2px 2px 10px rgba(255, 255, 255, 0.05);
-  transform-style: preserve-3d;
-}
+export const useDashboardStore = create<DashboardState>((set) => ({
+  sidebarCollapsed: false,
+  toggleSidebar: () => set((state) => ({ sidebarCollapsed: !state.sidebarCollapsed })),
+  workspace: "Arctus.ai Consortium",
+  notifications: 3,
+  theme: "dark-glass", // The UI remains intact, toggles to 'sky-light' (white opaque glass) cleanly
+  setTheme: (theme) => set({ theme }),
+  mcpActive: true,
+  toggleMcp: () => set((state) => ({ mcpActive: !state.mcpActive })),
+  isConfigModalOpen: false,
+  setConfigModalOpen: (open) => set({ isConfigModalOpen: open }),
+  isAuthModalOpen: false,
+  setAuthModalOpen: (open) => set({ isAuthModalOpen: open }),
+  selectedModel: "claude-3-7-sonnet",
+  setSelectedModel: (model) => set({ selectedModel: model }),
+  user: {
+    name: "Alex Rivera",
+    avatar: "/avatar.jpg",
+    tier: "Enterprise Tier",
+  },
+  terminalLogs: [
+    { id: "1", type: "system", text: "Arctus Core v3.4.0 3D Engine initialized.", timestamp: "10:24:01" },
+    { id: "2", type: "prefix", text: "[MCP Protocol]: Active connection to local PostgreSQL & GitHub tool servers.", timestamp: "10:24:03" },
+  ],
+  addTerminalLog: (log) =>
+    set((state) => ({
+      terminalLogs: [
+        ...state.terminalLogs,
+        {
+          ...log,
+          id: Math.random().toString(36).substring(2, 9),
+          timestamp: new Date().toLocaleTimeString([], { hour12: false }),
+        },
+      ],
+    })),
+  clearLogs: () => set({ terminalLogs: [] }),
+}));
 
-.float-z { transform: translateZ(40px); box-shadow: 0 15px 35px rgba(0,0,0,0.5); }
-.float-z-high { transform: translateZ(70px); }
-.float-z-highest { transform: translateZ(90px); }
+// ============================================================================
+// 2. Simulated TanStack Query Data Fetching
+// ============================================================================
+const fetchProjects = async () => {
+  await new Promise((r) => setTimeout(r, 800));
+  return [
+    { id: 1, name: "Autonomous Code Agent", icon: <Cpu className="w-5 h-5 text-cyan-400" />, status: "Active Swarm", starred: true },
+    { id: 2, name: "Database MCP Pipeline", icon: <Server className="w-5 h-5 text-emerald-400" />, status: "Connected", starred: false },
+    { id: 3, name: "Consortium Multi-LLM", icon: <Layers className="w-5 h-5 text-purple-400" />, status: "Consensus Mode", starred: true },
+  ];
+};
 
-/* ── 4. Authentication Screen ───────────────────────────────────────── */
-.auth-wrapper {
-  width: 400px;
-  padding: 40px 30px;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  text-align: center;
-  transition: opacity 0.4s ease, transform 0.4s ease;
-  z-index: 10;
-}
-.auth-wrapper h2 { font-size: 1.5rem; margin-bottom: 10px; font-weight: 600; }
-.auth-input {
-  width: 100%;
-  padding: 12px 16px;
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: var(--text-main);
-  font-family: 'Inter', sans-serif;
-  outline: none;
-}
-.auth-input:focus { border-color: var(--accent); }
-.auth-btn {
-  width: 100%;
-  padding: 12px;
-  border-radius: 10px;
-  border: none;
-  background: var(--accent);
-  color: #fff;
-  font-weight: 600;
-  cursor: pointer;
-  transition: 0.2s;
-}
-.auth-btn:hover { filter: brightness(1.15); }
-.social-login { display: flex; gap: 12px; margin-top: 10px; }
-.social-btn {
-  flex: 1;
-  padding: 10px;
-  border-radius: 10px;
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.1);
-  color: var(--text-main);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  font-size: 0.85rem;
-  transition: 0.2s;
-}
-.social-btn:hover { border-color: var(--accent); background: rgba(0, 229, 255, 0.08); }
+// ============================================================================
+// 3. Main Dashboard Page Component (with WebSocket Integration)
+// ============================================================================
+export default function DashboardPage() {
+  const {
+    sidebarCollapsed,
+    toggleSidebar,
+    workspace,
+    notifications,
+    theme,
+    setTheme,
+    mcpActive,
+    toggleMcp,
+    isConfigModalOpen,
+    setConfigModalOpen,
+    isAuthModalOpen,
+    setAuthModalOpen,
+    selectedModel,
+    setSelectedModel,
+    user,
+    terminalLogs,
+    addTerminalLog,
+  } = useDashboardStore();
 
-/* ── 5. Dashboard Layout ──────────────────────────────────────────── */
-.dashboard-layout {
-  display: none;
-  width: 100%;
-  height: 100vh;
-  gap: 0;
-  opacity: 0;
-  transition: opacity 0.5s ease;
-}
+  const [cliInput, setCliInput] = useState("");
+  const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
+  
+  // WebSocket Reference to persist across renders
+  const wsRef = useRef<WebSocket | null>(null);
+  const terminalEndRef = useRef<HTMLDivElement>(null);
 
-/* Sidebar */
-.sidebar {
-  width: 260px;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  padding: 24px;
-  overflow-y: auto;
-  background: rgba(0, 0, 0, 0.15);
-  border-right: 1px solid var(--glass-border);
-  flex-shrink: 0;
-}
-.section-title {
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 1.5px;
-  color: var(--text-muted);
-  margin-bottom: 10px;
-  font-weight: 600;
-}
-.new-chat-btn {
-  width: 100%;
-  padding: 12px;
-  border-radius: 10px;
-  border: 1px dashed var(--accent);
-  background: rgba(0, 229, 255, 0.08);
-  color: var(--accent);
-  font-weight: 600;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  font-family: 'Fira Code', ui-monospace, monospace;
-  transition: 0.2s;
-  margin-bottom: 10px;
-  font-size: 0.85rem;
-}
-.new-chat-btn:hover { background: var(--accent); color: #fff; border-style: solid; }
+  const { data: projects, isLoading } = useQuery({ queryKey: ["projects"], queryFn: fetchProjects });
 
-.list-item {
-  padding: 10px 14px;
-  border-radius: 10px;
-  background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(255,255,255,0.05);
-  font-size: 0.85rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 8px;
-  cursor: pointer;
-  color: var(--text-main);
-  transition: 0.15s;
-}
-.list-item:hover { border-color: var(--accent); background: rgba(0, 229, 255, 0.04); }
+  // ── Auto-scroll terminal to bottom ──
+  useEffect(() => {
+    if (terminalEndRef.current) {
+      terminalEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [terminalLogs]);
 
-/* ── 6. Workspace ──────────────────────────────────────────────────── */
-.workspace {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  padding: 20px;
-  overflow-y: auto;
-  position: relative;
-}
+  // ── WebSocket Initialization ──
+  useEffect(() => {
+    // Replace with your actual backend WebSocket URL
+    const WS_URL = "ws://localhost:8080/api/stream"; 
+    
+    try {
+      const socket = new WebSocket(WS_URL);
+      wsRef.current = socket;
 
-/* Top Nav */
-.top-nav {
-  height: 56px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 20px;
-  border-radius: 12px;
-  z-index: 100;
-  flex-shrink: 0;
-}
-.nav-right { display: flex; align-items: center; gap: 10px; }
-.btn-nav {
-  background: rgba(255,255,255,0.05);
-  border: 1px solid var(--glass-border);
-  color: var(--text-main);
-  padding: 8px 14px;
-  border-radius: 8px;
-  font-size: 0.8rem;
-  cursor: pointer;
-  font-family: 'Fira Code', ui-monospace, monospace;
-  transition: 0.15s;
-}
-.btn-nav:hover { border-color: var(--accent); background: rgba(0, 229, 255, 0.08); }
+      socket.onopen = () => {
+        addTerminalLog({ type: "success", text: "[Network]: WebSocket connection established successfully." });
+      };
 
-/* Profile Dropdown */
-.profile-wrapper { position: relative; }
-.profile-menu {
-  position: absolute;
-  top: calc(100% + 10px);
-  right: 0;
-  width: 240px;
-  display: none;
-  flex-direction: column;
-  padding: 10px;
-  border-radius: 12px;
-  z-index: 200;
-  gap: 4px;
-}
-.profile-wrapper:hover .profile-menu { display: flex; }
-.profile-item {
-  padding: 8px 12px;
-  font-size: 0.85rem;
-  border-radius: 6px;
-  cursor: pointer;
-  font-family: 'Fira Code', ui-monospace, monospace;
-  color: var(--text-main);
-  transition: 0.15s;
-}
-.profile-item:hover { background: rgba(255,255,255,0.08); color: var(--accent); }
-.profile-item.active-tier { border-left: 3px solid var(--accent); color: var(--accent); }
-.profile-item.disabled { opacity: 0.4; cursor: default; pointer-events: none; }
-.profile-divider {
-  border-top: 1px solid rgba(255,255,255,0.1);
-  margin: 4px 0;
-}
+      socket.onmessage = (event) => {
+        // Attempt to parse structured JSON from server, fallback to raw text
+        try {
+          const data = JSON.parse(event.data);
+          addTerminalLog({
+            type: data.type || "system", // Expected types: 'success', 'error', 'system', 'prefix'
+            text: data.message || JSON.stringify(data),
+          });
+        } catch (e) {
+          // If it's plain text streaming from the agent
+          addTerminalLog({ type: "success", text: `[Agent Response]: ${event.data}` });
+        }
+      };
 
-/* ── 7. Management Cards (Agents / MCP / Consortium) ───────────────── */
-.management-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 14px;
-  flex-shrink: 0;
-}
-.card { padding: 16px; }
-.card h2 { font-size: 14px; margin-bottom: 10px; color: var(--accent); letter-spacing: 0.4px; }
-.kv { font-size: 12.5px; color: var(--text-dim); line-height: 1.6; min-height: 36px; }
+      socket.onerror = (error) => {
+        addTerminalLog({ type: "error", text: "[Network Error]: WebSocket encountered an issue." });
+      };
 
-.btn {
-  margin-top: 10px;
-  padding: 7px 12px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid var(--glass-border);
-  border-radius: 10px;
-  color: var(--text);
-  font-size: 12.5px;
-  cursor: pointer;
-  transition: transform 0.15s, box-shadow 0.15s, background 0.15s;
-}
-.btn:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 0 14px var(--accent-soft);
-  background: rgba(0, 229, 255, 0.08);
-}
-.btn.primary { background: var(--accent-soft); border-color: var(--accent); color: var(--text); }
-.connector-btn { background: rgba(0, 255, 255, 0.12); border-color: rgba(0, 229, 255, 0.4); }
+      socket.onclose = () => {
+        addTerminalLog({ type: "error", text: "[Network]: WebSocket connection closed." });
+      };
+    } catch (err) {
+      addTerminalLog({ type: "error", text: "[System]: Failed to initialize WebSocket client." });
+    }
 
-/* ── 8. Terminal Stream ────────────────────────────────────────────── */
-.terminal {
-  flex: 1;
-  padding: 18px;
-  font-family: 'Fira Code', ui-monospace, "SF Mono", Menlo, Consolas, monospace;
-  font-size: 0.85rem;
-  overflow-y: auto;
-  border-radius: 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  min-height: 160px;
-  background: rgba(0, 0, 0, 0.2);
-}
-.terminal .prefix { color: var(--accent); font-weight: 600; }
-.terminal .system { color: var(--text-muted); }
-.terminal .error { color: #ff5f56; }
+    // Cleanup on component unmount
+    return () => {
+      if (wsRef.current) {
+        wsRef.current.close();
+      }
+    };
+  }, []); // Empty dependency array ensures this runs once on mount
 
-/* ── 9. Input Bar ────────────────────────────────────────────────── */
-.input-bar {
-  display: flex;
-  align-items: center;
-  padding: 12px 16px;
-  border-radius: 14px;
-  gap: 10px;
-  flex-wrap: wrap;
-  flex-shrink: 0;
-}
-.file-btn {
-  width: 34px; height: 34px;
-  border-radius: 50%;
-  background: rgba(255,255,255,0.05);
-  border: 1px solid var(--glass-border);
-  color: var(--text-main);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  font-size: 1.2rem;
-  flex-shrink: 0;
-  transition: 0.15s;
-}
-.file-btn:hover { border-color: var(--accent); color: var(--accent); }
-.control-dropdown {
-  background: rgba(255,255,255,0.05);
-  border: 1px solid var(--glass-border);
-  color: var(--text-main);
-  padding: 6px 10px;
-  border-radius: 8px;
-  font-family: 'Inter', sans-serif;
-  font-size: 0.8rem;
-  outline: none;
-  cursor: pointer;
-}
-.control-dropdown option { background: var(--bg); color: var(--text); }
-.mcp-btn {
-  background: rgba(16, 185, 129, 0.15);
-  border: 1px solid var(--mcp-active);
-  color: var(--text-main);
-  padding: 6px 12px;
-  border-radius: 8px;
-  font-size: 0.8rem;
-  cursor: pointer;
-  font-family: 'Inter', sans-serif;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  transition: 0.15s;
-}
-.mcp-btn:hover { background: var(--mcp-active); color: #fff; }
-.cli-input {
-  flex: 1;
-  min-width: 180px;
-  background: transparent;
-  border: none;
-  outline: none;
-  color: var(--text-main);
-  font-family: 'Fira Code', ui-monospace, monospace;
-  font-size: 0.9rem;
-}
-.cli-input::placeholder { color: var(--text-muted); }
+  // ── Handle Command Submit to WebSocket ──
+  const handleCliSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!cliInput.trim()) return;
 
-/* ── 10. Usage Widget ─────────────────────────────────────────────── */
-.usage-bar {
-  font-size: 0.75rem;
-  color: var(--text-muted);
-  padding: 6px 0;
-  font-family: 'Fira Code', ui-monospace, monospace;
-}
-.usage-bar.limit-hit { color: #ff5f56; }
+    // 1. Echo the command locally in the UI immediately
+    addTerminalLog({ type: "prefix", text: `> ${cliInput}` });
 
-/* ── 11. Modal ────────────────────────────────────────────────────── */
-.modal {
-  position: fixed; inset: 0;
-  background: rgba(5, 8, 16, 0.72);
-  backdrop-filter: blur(6px);
-  display: flex; align-items: center; justify-content: center;
-  z-index: 300;
-}
-.modal.hidden { display: none; }
-.modal-card {
-  width: min(440px, 92vw);
-  padding: 24px;
-}
-.modal-card h2 { font-size: 18px; margin-bottom: 16px; color: var(--accent); }
-.modal-card label {
-  display: block;
-  font-size: 12px;
-  color: var(--text-dim);
-  margin-bottom: 10px;
-}
-.modal-card input, .modal-card select {
-  display: block;
-  width: 100%;
-  margin-top: 4px;
-  padding: 9px 10px;
-  background: rgba(0, 0, 0, 0.3);
-  border: 1px solid var(--glass-border);
-  border-radius: 8px;
-  color: var(--text);
-  font-size: 13px;
-}
-.modal-card input:focus, .modal-card select:focus {
-  border-color: var(--accent);
-  box-shadow: 0 0 10px var(--accent-soft);
-}
-.modal-actions {
-  display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px;
-}
+    // 2. Send the command payload to the server via WebSocket
+    if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+      const payload = {
+        action: "execute_command",
+        command: cliInput,
+        model: selectedModel,
+        mcpActive: mcpActive,
+      };
+      
+      wsRef.current.send(JSON.stringify(payload));
+    } else {
+      addTerminalLog({ type: "error", text: "[System]: Cannot send command. WebSocket is disconnected." });
+    }
 
-/* ── 12. Responsive ───────────────────────────────────────────────── */
-@media (max-width: 768px) {
-  .dashboard-layout { flex-direction: column; }
-  .sidebar {
-    width: 100%;
-    height: auto;
-    max-height: 200px;
-    border-right: none;
-    border-bottom: 1px solid var(--glass-border);
-  }
-  .management-grid {
-    grid-template-columns: 1fr;
-  }
-  .input-bar { gap: 8px; }
-  .cli-input { min-width: 120px; }
-}
+    // 3. Clear input
+    setCliInput("");
+  };
+
+  const isDark = theme === "dark-glass";
+
+  return (
+    <div
+      className={clsx(
+        "min-h-screen flex relative transition-colors duration-500 font-sans overflow-hidden",
+        isDark ? "bg-[#0a0e1a] text-[#e6f1ff]" : "bg-[#f0f9ff] text-[#0c4a6e]"
+      )}
+      style={{ perspective: "1500px" }}
+    >
+      {/* ── Ambient Animated 3D Glow Background ───────────────────────── */}
+      <div
+        className="fixed inset-0 pointer-events-none z-0 opacity-70"
+        style={{
+          background: isDark
+            ? "radial-gradient(circle at 20% 0%, rgba(0, 229, 255, 0.15) 0%, transparent 50%), radial-gradient(circle at 80% 100%, rgba(139, 92, 246, 0.12) 0%, transparent 50%)"
+            : "radial-gradient(circle at 20% 0%, rgba(2, 132, 199, 0.15) 0%, transparent 50%), radial-gradient(circle at 80% 100%, rgba(56, 189, 248, 0.12) 0%, transparent 50%)",
+        }}
+      />
+
+      {/* ── 1. Collapsible Sidebar Panel ─────────────────────────────── */}
+      <motion.aside
+        initial={{ width: 260 }}
+        animate={{ width: sidebarCollapsed ? 76 : 260 }}
+        transition={{ type: "spring", stiffness: 300, damping: 32 }}
+        className={clsx(
+          "fixed z-40 left-0 top-0 h-full flex flex-col py-6 px-4 backdrop-blur-2xl border-r shadow-2xl transition-all duration-300",
+          isDark
+            ? "bg-black/20 border-white/10 shadow-black/50"
+            : "bg-white/40 border-sky-200 shadow-sky-900/10"
+        )}
+      >
+        {/* Brand & Toggle Header */}
+        <div className="flex items-center justify-between mb-6 px-2">
+          {!sidebarCollapsed && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex items-center gap-2 font-bold text-lg tracking-wider">
+              <Zap className="w-5 h-5 text-cyan-400 animate-pulse" />
+              <span className="bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">Arctus.ai</span>
+            </motion.div>
+          )}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={toggleSidebar}
+            className={clsx("rounded-xl transition-colors", isDark ? "hover:bg-white/10" : "hover:bg-black/5")}
+          >
+            <Menu className="w-5 h-5" />
+          </Button>
+        </div>
+
+        {/* New Session Button */}
+        <button
+          onClick={() => addTerminalLog({ type: "system", text: "New agentic session initialized locally." })}
+          className={clsx(
+            "w-full py-2.5 px-3 rounded-xl border border-dashed flex items-center justify-center gap-2 font-mono text-xs font-semibold mb-6 transition-all duration-200",
+            isDark
+              ? "border-cyan-400/50 bg-cyan-400/10 text-cyan-300 hover:bg-cyan-400 hover:text-black"
+              : "border-sky-500/50 bg-sky-50 text-sky-700 hover:bg-sky-500 hover:text-white"
+          )}
+        >
+          <Plus className="w-4 h-4" />
+          {!sidebarCollapsed && <span>New Session</span>}
+        </button>
+
+        {/* Primary Navigation Links */}
+        <nav className="flex flex-col gap-1.5">
+          {[
+            { name: "Dashboard", icon: <Activity className="w-4 h-4" />, active: true },
+            { name: "Agent Swarm", icon: <Cpu className="w-4 h-4" /> },
+            { name: "MCP Hub", icon: <Server className="w-4 h-4" /> },
+            { name: "Consortium", icon: <Layers className="w-4 h-4" /> },
+            { name: "Settings", icon: <Settings className="w-4 h-4" /> },
+          ].map((item) => (
+            <Tooltip key={item.name} delayDuration={100}>
+              <TooltipTrigger asChild>
+                <button
+                  className={clsx(
+                    "w-full py-2.5 px-3 rounded-xl flex items-center gap-3 text-sm font-medium transition-all duration-200",
+                    item.active
+                      ? isDark
+                        ? "bg-cyan-400/15 text-cyan-300 border border-cyan-400/30"
+                        : "bg-sky-500/15 text-sky-800 border border-sky-400/40"
+                      : isDark
+                      ? "text-slate-400 hover:bg-white/5 hover:text-white"
+                      : "text-slate-600 hover:bg-black/5 hover:text-slate-900",
+                    sidebarCollapsed && "justify-center"
+                  )}
+                >
+                  {item.icon}
+                  {!sidebarCollapsed && <span>{item.name}</span>}
+                </button>
+              </TooltipTrigger>
+              {sidebarCollapsed && <TooltipContent side="right">{item.name}</TooltipContent>}
+            </Tooltip>
+          ))}
+        </nav>
+
+        {/* User Profile & Auth Trigger */}
+        <div className="mt-auto relative">
+          <div
+            onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
+            className={clsx(
+              "p-2 rounded-xl flex items-center gap-3 cursor-pointer transition-colors border",
+              isDark ? "bg-white/5 border-white/10 hover:bg-white/10" : "bg-white/60 border-sky-200 hover:bg-white"
+            )}
+          >
+            <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-cyan-400 to-purple-500 flex items-center justify-center font-bold text-black text-xs">
+              AR
+            </div>
+            {!sidebarCollapsed && (
+              <div className="flex flex-col text-left overflow-hidden">
+                <span className="text-xs font-semibold truncate">{user.name}</span>
+                <span className="text-[10px] opacity-60 truncate">{user.tier}</span>
+              </div>
+            )}
+          </div>
+
+          {/* Profile Flyout Dropdown */}
+          <AnimatePresence>
+            {profileDropdownOpen && (
+              <motion.div
+                initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                className={clsx(
+                  "absolute bottom-14 left-0 w-56 p-2 rounded-2xl border backdrop-blur-2xl shadow-2xl z-50 flex flex-col gap-1 font-mono text-xs",
+                  isDark ? "bg-[#0c1222]/90 border-white/20 text-slate-200" : "bg-white/90 border-sky-200 text-sky-900"
+                )}
+              >
+                <div className="px-3 py-2 font-bold border-b border-white/10 text-cyan-400">User Session Settings</div>
+                <button
+                  onClick={() => {
+                    setAuthModalOpen(true);
+                    setProfileDropdownOpen(false);
+                  }}
+                  className="p-2 rounded-lg hover:bg-white/10 text-left flex items-center justify-between"
+                >
+                  <span>Switch Account</span>
+                  <ChevronRight className="w-3.5 h-3.5" />
+                </button>
+                <button
+                  onClick={() => setConfigModalOpen(true)}
+                  className="p-2 rounded-lg hover:bg-white/10 text-left flex items-center justify-between"
+                >
+                  <span>API Keys & Config</span>
+                  <ChevronRight className="w-3.5 h-3.5" />
+                </button>
+                <div className="border-t border-white/10 my-1" />
+                <button
+                  onClick={() => setAuthModalOpen(true)}
+                  className="p-2 rounded-lg hover:bg-rose-500/20 text-rose-400 text-left flex items-center gap-2"
+                >
+                  <LogOut className="w-3.5 h-3.5" /> Log Out
+                </button>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      </motion.aside>
+
+      {/* ── 2. Main Workspace Content Area ───────────────────────────── */}
+      <div
+        className={clsx(
+          "flex-1 flex flex-col min-h-screen transition-all duration-300 relative z-10",
+          sidebarCollapsed ? "ml-[76px]" : "ml-[260px]"
+        )}
+      >
+        {/* Top Glass Navigation Bar */}
+        <header
+          className={clsx(
+            "h-16 px-8 flex items-center justify-between border-b backdrop-blur-xl sticky top-0 z-30 transition-colors",
+            isDark ? "bg-[#0a0e1a]/70 border-white/10" : "bg-white/60 border-sky-200"
+          )}
+        >
+          <div className="flex items-center gap-4">
+            <span className="text-sm font-semibold tracking-wide font-mono uppercase text-cyan-400">{workspace}</span>
+            <span className="text-xs px-2.5 py-0.5 rounded-full border border-emerald-500/40 bg-emerald-500/10 text-emerald-400 font-mono flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" /> Active Consortium
+            </span>
+          </div>
+
+          <div className="flex items-center gap-3">
+            {/* Global Search Input */}
+            <div className="relative">
+              <Search className="w-4 h-4 absolute left-3 top-2.5 opacity-50" />
+              <Input
+                placeholder="Search tools & agents..."
+                className={clsx(
+                  "w-52 pl-9 h-9 text-xs rounded-xl border focus:ring-1 focus:ring-cyan-400 font-mono",
+                  isDark ? "bg-white/5 border-white/10 text-white" : "bg-white border-sky-200 text-slate-800"
+                )}
+              />
+            </div>
+
+            {/* MCP Mode Toggle Button */}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={toggleMcp}
+              className={clsx(
+                "h-9 text-xs font-mono rounded-xl border flex items-center gap-2 transition-all",
+                mcpActive
+                  ? "bg-emerald-500/15 border-emerald-500/50 text-emerald-300"
+                  : "bg-rose-500/15 border-rose-500/50 text-rose-300"
+              )}
+            >
+              <Radio className={clsx("w-3.5 h-3.5", mcpActive && "animate-pulse")} />
+              <span>MCP: {mcpActive ? "Active" : "Offline"}</span>
+            </Button>
+
+            {/* Theme Toggle Button */}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setTheme(isDark ? "sky-light" : "dark-glass")}
+              className="h-9 w-9 rounded-xl border border-white/10"
+            >
+              {isDark ? <Sun className="w-4 h-4 text-amber-300" /> : <Moon className="w-4 h-4 text-slate-700" />}
+            </Button>
+
+            {/* Notifications Bell */}
+            <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl border border-white/10 relative">
+              <Bell className="w-4 h-4" />
+              {notifications > 0 && (
+                <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-rose-500 text-white text-[10px] flex items-center justify-center font-bold">
+                  {notifications}
+                </span>
+              )}
+            </Button>
+          </div>
+        </header>
+
+        {/* Main Body Grid Layout */}
+        <main className="p-8 flex-1 flex flex-col gap-6 max-w-7xl w-full mx-auto">
+          {/* ── 3. Management Grid Cards (Agents / MCP / Consortium) ── */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+            {/* Card 1: Active Swarm Agents */}
+            <motion.div whileHover={{ y: -3, translateZ: 20 }} transition={{ type: "spring", stiffness: 300 }}>
+              <Card
+                className={clsx(
+                  "p-5 rounded-2xl border backdrop-blur-2xl shadow-xl flex flex-col justify-between h-44 relative overflow-hidden",
+                  isDark ? "bg-white/[0.04] border-white/15 text-white shadow-black/40" : "bg-white/70 border-sky-200 text-slate-800"
+                )}
+              >
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="text-xs font-mono uppercase tracking-wider text-cyan-400 font-bold">Agent Swarm Status</h3>
+                    <Cpu className="w-5 h-5 text-cyan-400" />
+                  </div>
+                  <div className="text-2xl font-bold font-mono">4 Active Nodes</div>
+                  <p className="text-xs opacity-60 mt-1">Autonomous debugging & app builder stack online.</p>
+                </div>
+                <Button
+                  onClick={() => {
+                     // Can also send specific commands over WS when buttons are clicked
+                     addTerminalLog({ type: "prefix", text: "[Agent]: Triggere
