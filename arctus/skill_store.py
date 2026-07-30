@@ -158,55 +158,51 @@ class SkillStore:
             return None
 
     def search(
-        self, query: str, tags: Optional[List[str]] = None, top_k: int = 5,
-    ) -> List[Skill]:
-        """Fuzzy-search skills by name/description/tags."""
-        manifest = self._load_manifest()
-        entries: List[Dict[str, Any]] = manifest.get("skills", [])
-        query_lower = query.lower()
-        scored: List[tuple] = []
+    self, query: str, tags: Optional[List[str]] = None, top_k: int = 5,
+) -> List[Skill]:
+    """Fuzzy-search skills by name/description/tags."""
+    manifest = self._load_manifest()
+    entries: List[Dict[str, Any]] = manifest.get("skills", [])
+    query_lower = query.lower()
+    scored: List[tuple] = []
 
-        for entry in entries:
-            name = entry.get("name", "")
-            desc = entry.get("description", "")
-            entry_tags = [t.lower() for t in entry.get("tags", [])]
+    # Safely sanitize input tags
+    wanted_tags = [t.lower() for t in tags if t] if tags else []
 
-            # Tag filter (exact).
-            if tags:
-                wanted = [t.lower() for t in tags]
-                if not any(t in entry_tags for t in wanted):
-                    continue
+    for entry in entries:
+        name = entry.get("name", "")
+        desc = entry.get("description", "")
+        
+        # FIX: Ensure entry_tags is always a list of lowercased strings
+        raw_tags = entry.get("tags") or []
+        entry_tags = [str(t).lower() for t in raw_tags if t is not None]
 
-            # Fuzzy score: max of name-match, desc-match, tag-match.
-            name_score = SequenceMatcher(None, query_lower, name.lower()).ratio()
-            desc_score = SequenceMatcher(None, query_lower, desc.lower()).ratio()
-            tag_score = max(
-                (SequenceMatcher(None, query_lower, t).ratio() for t in entry_tags),
-                default=0.0,
-            )
-            score = max(name_score, desc_score * 0.8, tag_score * 0.7)
-            scored.append((score, name))
+        # Tag filter (exact)
+        if wanted_tags:
+            if not any(t in entry_tags for t in wanted_tags):
+                continue
 
-        scored.sort(reverse=True)
-        results: List[Skill] = []
-        for score, name in scored[:top_k]:
-            skill = self.load(name)
-            if skill:
-                results.append(skill)
-        if results:
-            logger.info("Skill search '%s': %d match(es), top score=%.2f",
-                        query, len(results), scored[0][0] if scored else 0.0)
-        return results
+        # Fuzzy score calculation
+        name_score = SequenceMatcher(None, query_lower, name.lower()).ratio()
+        desc_score = SequenceMatcher(None, query_lower, desc.lower()).ratio()
+        
+        tag_score = max(
+            (SequenceMatcher(None, query_lower, t).ratio() for t in entry_tags),
+            default=0.0,
+        )
+        score = max(name_score, desc_score * 0.8, tag_score * 0.7)
+        scored.append((score, name))
 
-    def list_all(self) -> List[Skill]:
-        """Return all skills (code omitted for speed; load() for full)."""
-        manifest = self._load_manifest()
-        results: List[Skill] = []
-        for entry in manifest.get("skills", []):
-            results.append(Skill.from_metadata(entry.get("name", "unknown"), entry))
-        return results
+    scored.sort(reverse=True)
+    results: List[Skill] = []
+    for score, name in scored[:top_k]:
+        skill = self.load(name)
+        if skill:
+            results.append(skill)
+            
+    return results
 
-    def increment_use(self, name: str) -> None:
+   def increment_use(self, name: str) -> None:
         """Bump the uses_count when a skill is reused (feedback loop)."""
         slug = self._slugify(name)
         skill = self.load(slug)
