@@ -9,6 +9,21 @@
 #   - GitHub (if permitted)
 # Local cloning is optional and primarily for offline development.
 # All repository usage is subject to the respective license terms.
+- name: Unlimited-OCR
+  url: https://github.com/baidu/Unlimited-OCR.git
+  note: "One-shot long-horizon OCR and document parsing with constant KV cache"
+  tags:
+    - ocr
+    - document
+    - pdf
+    - vlm
+    - multimodal
+    - long-context
+    - layout
+    - tables
+    - handwriting
+  language: Python
+  priority: critical
 repos:
   - name: airllm
     url: https://github.com/lyogavin/airllm.git
@@ -29,10 +44,160 @@ repos:
   - name: Agent-Reach
     url: https://github.com/Panniantong/Agent-Reach.git
     note: "Agent reach/extensibility"
+# OCR / Document AI
 
-  - name: colibri
-    url: https://github.com/JustVugg/colibri.git
-    note: "Lightweight tooling"
+- name: PaddleOCR
+  url: https://github.com/PaddlePaddle/PaddleOCR.git
+  note: "Production-grade multilingual OCR"
+  tags:
+    - ocr
+    - document
+    - multilingual
+    - layout
+  language: Python
+  priority: critical
+
+- name: Surya
+  url: https://github.com/VikParuchuri/surya.git
+  note: "Fast OCR, layout analysis and table recognition"
+  tags:
+    - ocr
+    - layout
+    - tables
+    - document
+  language: Python
+  priority: critical
+
+- name: Docling
+  url: https://github.com/docling-project/docling.git
+  note: "Document parsing for PDFs and Office files"
+  tags:
+    - pdf
+    - ocr
+    - parser
+    - document
+  language: Python
+  priority: critical
+
+- name: Tesseract
+  url: https://github.com/tesseract-ocr/tesseract.git
+  note: "Industry-standard open source OCR engine"
+  tags:
+    - ocr
+    - text
+    - image
+  language: C++
+  priority: high
+
+- name: EasyOCR
+  url: https://github.com/JaidedAI/EasyOCR.git
+  note: "Deep learning OCR supporting many languages"
+  tags:
+    - ocr
+    - multilingual
+    - vision
+  language: Python
+  priority: high
+
+- name: MMOCR
+  url: https://github.com/open-mmlab/mmocr.git
+  note: "OCR toolbox from OpenMMLab"
+  tags:
+    - ocr
+    - detection
+    - recognition
+  language: Python
+  priority: high
+
+- name: TrOCR
+  url: https://github.com/microsoft/unilm.git
+  note: "Transformer-based OCR models"
+  tags:
+    - ocr
+    - transformer
+    - vlm
+  language: Python
+  priority: high
+
+- name: doctr
+  url: https://github.com/mindee/doctr.git
+  note: "Deep OCR for scanned documents"
+  tags:
+    - ocr
+    - document
+    - recognition
+  language: Python
+  priority: high
+
+- name: OCRmyPDF
+  url: https://github.com/ocrmypdf/OCRmyPDF.git
+  note: "Adds searchable OCR layer to PDFs"
+  tags:
+    - pdf
+    - ocr
+    - search
+  language: Python
+  priority: high
+
+- name: Marker
+  url: https://github.com/VikParuchuri/marker.git
+  note: "Convert PDFs into clean Markdown"
+  tags:
+    - pdf
+    - markdown
+    - ocr
+  language: Python
+  priority: high
+
+- name: LayoutParser
+  url: https://github.com/Layout-Parser/layout-parser.git
+  note: "Document layout detection toolkit"
+  tags:
+    - layout
+    - document
+    - ocr
+  language: Python
+  priority: medium
+
+- name: OpenParse
+  url: https://github.com/Filimoa/open-parse.git
+  note: "LLM-ready document parser"
+  tags:
+    - parser
+    - pdf
+    - rag
+  language: Python
+  priority: medium
+
+- name: Nougat
+  url: https://github.com/facebookresearch/nougat.git
+  note: "Scientific PDF OCR to Markdown"
+  tags:
+    - pdf
+    - research
+    - ocr
+  language: Python
+  priority: medium
+
+- name: GOT-OCR2
+  url: https://github.com/Ucas-HaoranWei/GOT-OCR2.0.git
+  note: "General OCR model with strong multilingual performance"
+  tags:
+    - ocr
+    - vlm
+    - multilingual
+  language: Python
+  priority: high
+
+- name: Florence-2
+  url: https://github.com/microsoft/Florence-2.git
+  note: "Vision foundation model capable of OCR and document understanding"
+  tags:
+    - vlm
+    - ocr
+    - multimodal
+  language: Python
+  priority: high
 
   - name: skills
     url: https://github.com/vercel-labs/skills.git
