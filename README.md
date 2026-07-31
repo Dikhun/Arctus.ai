@@ -365,7 +365,7 @@ arctus.ai/
 
 ## Reference repos (opt-in)
 
-12 third-party repos are listed in `repos.yaml`. They are NOT cloned
+30+ third-party repos are listed in `repos.yaml`. They are NOT cloned
 automatically. Run once:
 
 ```bash
