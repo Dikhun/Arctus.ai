@@ -8,7 +8,7 @@
 
 A **local-first** multi-agent orchestration platform.
 
-- **100 specialized agents** (2 coders, 7 testers, 1 security reviewer, planners, validators, researchers, engineers, consortium peers, swarm workers, and more)
+- **100 specialized agents** (1 qween, 2 coders, 7 testers, 1 security reviewer, planners, validators, researchers, engineers, consortium peers, swarm workers, and more)
 - **Up to 200 MCP connectors** (HTTP + stdio transports)
 - **80% context handoff cycle** — agent summarizes → writes sandbox checkpoint → clears its memory → waits → next agent resumes from summary
 - **DCR** — Dynamic Context Router; sparse attention optimizer that ranks tools/agents per step
@@ -17,7 +17,7 @@ A **local-first** multi-agent orchestration platform.
 - **Docker** — public container for Hugging Face Spaces + user compose with reference repo volume
 - **Provider presets** — OpenRouter, OmniRoute (local/remote), Ollama, OpenAI, Anthropic-via-OpenRouter
 - **Zero runtime deps** for the core; FastAPI only for the server
-
+- isolated linux sandbox vm
 Runs the loop: **Plan → Validate (local) → Execute (strong) → Verify**.
 
 > **Safety note.** This project deliberately does NOT include the `connect.sh` +
