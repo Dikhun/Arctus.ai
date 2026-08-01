@@ -1,0 +1,42 @@
+# /name: Auto Release
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Generate Version
+        id: version
+        run: |
+          VERSION="v$(date +'%Y.%m.%d').${GITHUB_RUN_NUMBER}"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Create Git Tag
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git tag -a "${{ steps.version.outputs.version }}" \
+            -m "Release ${{ steps.version.outputs.version }}"
+
+          git push origin "${{ steps.version.outputs.version }}"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version.outputs.version }}
+          name: Release ${{ steps.version.outputs.version }}
+          generate_release_notes: true
