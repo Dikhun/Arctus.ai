@@ -1,83 +1,113 @@
- import asyncio
-import sys
+import shutil
+
+if shutil.which("uv") is None:
+    print("Installing uv...")
+    # install automaticallyimport asyncio
 from pathlib import Path
+from typing import Optional
+
 
 class ArctusAgentSupervisor:
     """
-    Autonomous Environment Engineer Agent: 
-    Responsible for ensuring the Digital Twin engine is always running,
-    healthy, and integrated into the Arctus OS network.
+    Simple autonomous supervisor for the Digital Twin engine.
     """
+
     def __init__(self, script_path: str):
-        self.script_path = script_path
+        self.script_path = Path(script_path)
         self.process: Optional[asyncio.subprocess.Process] = None
-        self.is_running = False
+        self.running = True
 
-    async def ensure_dependencies(self):
-        """Autonomous check to ensure 'uv' is available on the node."""
-        print("[Agent Supervisor] Inspecting environment for execution capabilities...")
-        proc = await asyncio.create_subprocess_exec(
-            "uv", "--version",
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE
-        )
-        await proc.communicate()
-        if proc.returncode != 0:
-            print("[Agent Supervisor] 'uv' missing. Autonomous agent is bootstrapping 'uv'...")
-            # In a production agent, it would install uv automatically here.
-            
-    async def start_digital_twin(self):
-        """Spawns the Digital Twin engine autonomously using uv run."""
-        await self.ensure_dependencies()
-        
-        print(f"[Agent Supervisor] Launching Digital Twin engine from '{self.script_path}'...")
-        
-        # Spawn the process in the background using uv run
+    async def ensure_uv(self):
+        try:
+            proc = await asyncio.create_subprocess_exec(
+                "uv",
+                "--version",
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE,
+            )
+            await proc.communicate()
+
+            if proc.returncode != 0:
+                raise FileNotFoundError
+
+            print("[Supervisor] uv detected.")
+
+        except FileNotFoundError:
+            print("[ERROR] 'uv' is not installed.")
+            raise SystemExit(1)
+
+    async def start(self):
+        await self.ensure_uv()
+
+        if not self.script_path.exists():
+            print(f"[ERROR] {self.script_path} not found.")
+            raise SystemExit(1)
+
+        print(f"[Supervisor] Starting {self.script_path}...")
+
         self.process = await asyncio.create_subprocess_exec(
-            "uv", "run", self.script_path,
+            "uv",
+            "run",
+            str(self.script_path),
             stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE
+            stderr=asyncio.subprocess.STDOUT,
         )
-        self.is_running = True
-        print(f"[Agent Supervisor] Digital Twin running autonomously (PID: {self.process.pid})")
 
-    async def monitor_health(self):
-        """Continuously supervises the process, implementing self-healing."""
-        while self.is_running and self.process:
-            # Check if the process exited unexpectedly
-            retcode = self.process.poll()
-            if retcode is not None:
-                print(f"[Agent Supervisor] WARNING: Digital Twin crashed with exit code {retcode}. Self-healing initiated...")
-                await self.start_digital_twin()
-            await asyncio.sleep(5)
+        print(f"[Supervisor] PID: {self.process.pid}")
+
+        asyncio.create_task(self.log_output())
+
+    async def log_output(self):
+        while self.process and self.process.stdout:
+            line = await self.process.stdout.readline()
+            if not line:
+                break
+            print(line.decode().rstrip())
+
+    async def monitor(self):
+        while self.running:
+            if self.process is None:
+                await asyncio.sleep(2)
+                continue
+
+            code = self.process.returncode
+
+            if code is not None:
+                print(f"[Supervisor] Process exited ({code}). Restarting...")
+                await asyncio.sleep(2)
+                await self.start()
+
+            await asyncio.sleep(2)
 
     async def shutdown(self):
-        """Gracefully terminates the Digital Twin process."""
+        self.running = False
+
         if self.process and self.process.returncode is None:
-            print("[Agent Supervisor] Shutting down Digital Twin engine gracefully...")
+            print("[Supervisor] Stopping process...")
             self.process.terminate()
             await self.process.wait()
-            self.is_running = False
-            print("[Agent Supervisor] Digital Twin stopped.")
 
-# ==========================================
-# Autonomous Execution Loop Example
-# ==========================================
+        print("[Supervisor] Shutdown complete.")
+
+
 async def main():
     supervisor = ArctusAgentSupervisor("digital_twin.py")
-    
-    # 1. Agent boots the system
-    await supervisor.start_digital_twin()
-    
-    # 2. Simulate agent running other OS tasks while supervising the twin
-    print("[Arctus OS Kernel] System operational. Agent is monitoring background services...")
-    
-    # Let it run for a few seconds in simulation
-    await asyncio.sleep(10)
-    
-    # 3. Clean shutdown on OS termination
-    await supervisor.shutdown()
+
+    await supervisor.start()
+
+    monitor_task = asyncio.create_task(supervisor.monitor())
+
+    try:
+        while True:
+            await asyncio.sleep(1)
+
+    except KeyboardInterrupt:
+        print("\nStopping Arctus...")
+
+    finally:
+        monitor_task.cancel()
+        await supervisor.shutdown()
+
 
 if __name__ == "__main__":
-    # The human never touches the terminal; the OS kernel invokes this loop.
     asyncio.run(main())
