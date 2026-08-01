@@ -41,8 +41,7 @@ class Supervisor:
         setup_signal_handlers(self._shutdown_event)
         logger.info("supervisor_starting")
 
-      await self.uv.sync()
-        await self.twin.bootstrap()
+    await self.twin.bootstrap()
         await self.twin.start()
 
         await self.twin.graph.add_entity(
