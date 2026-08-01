@@ -47,8 +47,7 @@ def status():
     """Report current twin graph status."""
 
     async def _get():
-        await UvInstaller.ensure()
-        twin = DigitalTwinEngine(state["config"])
+ twin = DigitalTwinEngine(state["config"])
         await twin.bootstrap()
 
         st = await twin.get_status()
