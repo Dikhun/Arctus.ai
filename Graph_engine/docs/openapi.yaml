@@ -1,0 +1,52 @@
+openapi: 3.1.0
+info:
+  title: Confidence Graph Engine
+  version: 1.0.0
+paths:
+  /nodes:
+    post:
+      summary: Create a node with provenance
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+ $ref: '#/components/schemas/NodeCreate'
+      responses:
+        '201':
+          description: Node created
+  /query:
+    get:
+      summary: Confidence-bounded label search
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema: { type: string }
+        - name: min_confidence
+          in: query
+          schema: { type: number, minimum: 0, maximum: 1, default: 0.7 }
+      responses:
+        '200':
+          description: Ranked results content:
+            application/json:
+              schema:
+                type: array
+                items:
+ $ref: '#/components/schemas/ResultDTO'
+components:
+  schemas:
+    NodeCreate:
+      type: object
+      properties:
+        label: { type: string, minLength: 1 }
+        confidence: { type: number, minimum: 0, maximum: 1 }
+        source_type: { type: string, enum: [scip, framework_adapter, ast_direct, name_match, human_verified, model_inference, fallback] }
+    ResultDTO:
+      type: object
+      properties:
+        node_id: { type: string }
+        label: { type: string }
+        score: { type: number }
+        node_type: { type: string }
+        tier: { type: string }
