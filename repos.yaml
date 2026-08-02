@@ -28,6 +28,22 @@ repos:
   - name: airllm
     url: https://github.com/lyogavin/airllm.git
     note: "Inference of large models across limited VRAM"
+- name: TRELLIS-2
+  url: https://github.com/microsoft/TRELLIS.git
+  note: "TRELLIS 2: Enterprise-grade multimodal 3D generation and reconstruction framework"
+  tags:
+    - ai
+    - vision
+    - multimodal
+    - 3d
+    - image-to-3d
+    - text-to-3d
+    - mesh
+    - gaussian
+    - reconstruction
+    - rendering
+  language: Python
+  priority: high
 
   - name: MiniCode
     url: https://github.com/LiuMengxuan04/MiniCode.git
