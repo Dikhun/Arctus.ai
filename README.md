@@ -3,28 +3,45 @@
 ---
 
 ---
+# Arctus AI Operating System
 
+Enterprise Autonomous Multi-Agent Operating System
+
+Predict • Reason • Simulate • Execute • Learn
 # Arctus.ai
+                Arctus AI Operating System
 
+                    Queen Orchestrator
+                           │
+     ┌─────────────────────┼──────────────────────┐
+     │                     │                      │
+ Agent Mesh          Research Engine      Simulation Engine
+     │                     │                      │
+ Digital Twin       Knowledge Graph      Experience Replay
+     │                     │                      │
+ Persistent Memory  Capability Graph     Verification Engine
+     │
+ Runtime Kernel
 A **local-first** multi-agent orchestration platform.
 
-- **100 specialized agents** (1 qween, 2 coders, 7 testers, 1 security reviewer, planners, validators, researchers, engineers, consortium peers, swarm workers, and more)
-- **Up to 200 MCP connectors** (HTTP + stdio transports)
-- **80% context handoff cycle** — agent summarizes → writes sandbox checkpoint → clears its memory → waits → next agent resumes from summary
-- **DCR** — Dynamic Context Router; sparse attention optimizer that ranks tools/agents per step
-- **Consortium** — peer-to-peer task sharing between trusted Arctus instances
-- **Glassmorphism dashboard** — FastAPI + HTML/CSS/JS, runs on port 7860
-- **Docker** — public container for Hugging Face Spaces + user compose with reference repo volume
-- **Provider presets** — OpenRouter, OmniRoute (local/remote), Ollama, OpenAI, Anthropic-via-OpenRouter
-- **Zero runtime deps** for the core; FastAPI only for the server
-- isolated linux sandbox vm
-Runs the loop: **Plan → Validate (local) → Execute (strong) → Verify**.
+Enterprise Features
 
-> **Safety note.** This project deliberately does NOT include the `connect.sh` +
-> `localtunnel` + `x-omniroute-key` header-forwarding design. Provider keys live
-> in your environment (or HF Spaces Secrets), not in forwarded client headers.
-> OpenRouter and OmniRoute are fully supported — the normal way: your local
-> config holds your key, the orchestrator calls the endpoint directly.
+• 100+ Specialized AI Agents
+• Autonomous Multi-Agent Collaboration
+• Dynamic Context Router
+• Digital Twin Runtime
+• Predictive Simulation
+• Research Automation
+• Distributed Agent Mesh
+• Experience Replay
+• Enterprise Memory System
+• Plugin Architecture
+• AWS Native Deployment
+• Kubernetes Ready
+• MCP Integration
+• Local First
+• Cloud Native
+• Zero Trust Security
 
 ---
 
