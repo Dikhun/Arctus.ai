@@ -49,10 +49,11 @@ PRESETS: Dict[str, Dict[str, str]] = {
         "applies_to": "fast",
     },
     "ollama": {
-        "base_url": "http://localhost:11434/v1",
-        "model": "llama3.2",
-        "api_key_env": "",          # Ollama ignores keys
-        "applies_to": "fast",
+    "base_url": "http://localhost:11434/v1",
+    "model": "qwen2.5-coder:32b",
+    "api_key_env": "",
+    "applies_to": "fast",
+},
     },
     "openai": {
         "base_url": "https://api.openai.com/v1",
