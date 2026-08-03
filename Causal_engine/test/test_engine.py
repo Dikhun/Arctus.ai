@@ -15,6 +15,7 @@ from arctus_causal_engine.configuration import ConfigurationManager
 from arctus_causal_engine.storage import StorageManager, RedisBackend, PostgreSQLBackend
 from arctus_causal_engine.health import PureAsyncioTelemetryServer
 from arctus_causal_engine.bootstrap import CausalEngineBootstrap
+from arctus_causal_engine.installer import PackageInstaller
 
 
 class TestDIContainer(unittest.IsolatedAsyncioTestCase):
@@ -64,8 +65,8 @@ class TestDiscovery(unittest.IsolatedAsyncioTestCase):
 class TestConfiguration(unittest.IsolatedAsyncioTestCase):
     async def test_generate_and_load(self):
         with tempfile.TemporaryDirectory() as tmpdir:
-            os.chdir(tmpdir)
-            cm = ConfigurationManager("test_config.json")
+            cfg_path = os.path.join(tmpdir, "test_config.json")
+            cm = ConfigurationManager(cfg_path)
             info = SystemInfo(os_name="Linux", cpu_count=8, postgresql=True, redis=False)
             config = await cm.generate(info)
             self.assertEqual(config["engine"]["workers"], 8)
@@ -107,6 +108,14 @@ class TestHealthServer(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(srv.metrics["cpu"], 0.5)
 
 
+class TestInstaller(unittest.TestCase):
+    def test_venv_created(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            path = os.path.join(tmpdir, "testvenv")
+            inst = PackageInstaller(venv_path=path)
+            self.assertTrue(os.path.exists(inst.venv_path))
+
+
 class TestBootstrapPhases(unittest.IsolatedAsyncioTestCase):
     async def test_phase_discover(self):
         be = CausalEngineBootstrap()
@@ -118,14 +127,6 @@ class TestBootstrapPhases(unittest.IsolatedAsyncioTestCase):
         be.state["system_info"] = SystemInfo(os_name="Linux", cpu_count=4)
         await be.phase_configure()
         self.assertIn("config", be.state)
-
-    async def test_install_mock(self):
-        import unittest.mock as mock
-        be = CausalEngineBootstrap()
-        with mock.patch.object(PackageInstaller, "install", return_value=True):
-            be.installer = PackageInstaller()
-            result = await be.installer.install(["aiohttp"])
-            self.assertTrue(result)
 
 
 if __name__ == "__main__":
