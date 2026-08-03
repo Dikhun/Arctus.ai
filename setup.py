@@ -41,13 +41,8 @@ def setup_ollama():
 
     print("✅ Ollama is installed.")
 
-    try:
-        subprocess.run(
-            ["ollama", "serve"],
-            check=False
-        )
-    except Exception:
-        pass
+    if not is_ollama_running():
+    start_ollama()
 
     print("Checking model...")
 
