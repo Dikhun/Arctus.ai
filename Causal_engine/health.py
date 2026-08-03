@@ -2,7 +2,7 @@ import asyncio
 import json
 import logging
 import time
-from typing import Any, Callable, Dict, List
+from typing import Any, Callable, Dict, List, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -46,7 +46,7 @@ class PureAsyncioTelemetryServer:
                 status = "200 OK"
             elif path == "/ready":
                 body = json.dumps({"ready": True})
- status = "200 OK"
+                status = "200 OK"
             response = (
                 f"HTTP/1.1 {status}\r\n"
                 f"Content-Type: application/json\r\n"
@@ -103,8 +103,7 @@ class AioHttpTelemetryServer:
         self.metrics.update(data)
 
     async def start(self) -> None:
-        import aiohttp.web as aw
-        self.app = aw.Application()
+        import aiohttp.web as aw self.app = aw.Application()
         self.app.router.add_get("/health", self._health_handler)
         self.app.router.add_get("/metrics", self._metrics_handler)
         self.app.router.add_get("/ready", self._ready_handler)
