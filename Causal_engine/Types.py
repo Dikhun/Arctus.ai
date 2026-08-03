@@ -1,6 +1,8 @@
 import enum
 from dataclasses import dataclass, field
-from typing import Any, Dict, Listclass CloudProvider(enum.Enum):
+from typing import Any, Dict, List
+
+class CloudProvider(enum.Enum):
     AWS = "aws"
     AZURE = "azure"
     GCP = "gcp"
