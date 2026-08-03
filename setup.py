@@ -22,11 +22,23 @@ def start_ollama():
 
 
 def model_exists(model):
-    pass
-
+    try:
+        result = subprocess.run(
+            ["ollama", "list"],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        return model in result.stdout
+    except Exception:
+        return False
 
 def pull_model(model):
-    pass
+    print(f"Downloading {model}...")
+    subprocess.run(
+        ["ollama", "pull", model],
+        check=False,
+    )
 
 
 def verify_connection():
@@ -46,9 +58,8 @@ def setup_ollama():
 
     print("Checking model...")
 
-    subprocess.run(
-    ["ollama", "pull", "qwen2.5-coder:32b"],
-    check=False
+    if not model_exists("qwen2.5-coder:32b"):
+    pull_model("qwen2.5-coder:32b")
     )
     )
 
