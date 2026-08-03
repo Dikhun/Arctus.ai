@@ -12,14 +12,16 @@ class PluginMeta:
     name: str
     version: str
     module_path: str
-    plugin_class: type    instance: Optional[Any] = None    hooks: Dict[str, Callable] = field(default_factory=dict)
+    plugin_class: type
+    instance: Optional[Any] = None
+    hooks: Dict[str, Callable] = field(default_factory=dict)
 
 class PluginLoader:
     def __init__(self, plugin_dirs: Optional[List[str]] = None) -> None:
         self.plugin_dirs = plugin_dirs or [
             "plugins",
             "arctus_causal_engine/plugins",
- ]
+        ]
         self.plugins: Dict[str, PluginMeta] = {}
 
     async def discover(self) -> List[PluginMeta]:
@@ -83,7 +85,9 @@ class PluginLoader:
                         valid = False except Exception as exc:
                 logger.error(f"Plugin validation exception {name}: {exc}")
                 valid = False
-        return valid    async def unload_all(self) -> None:
+        return valid
+
+    async def unload_all(self) -> None:
         for name, meta in self.plugins.items():
             if meta.instance and hasattr(meta.instance, "shutdown"):
                 try:
