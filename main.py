@@ -196,11 +196,25 @@ def main(argv: Optional[List[str]] = None) -> int:
             print(str(e), file=sys.stderr)
             return 2
         print(_stamp(f"Setup complete: applied '{preset_name}' preset."))
-        print(f"  {preset_name} -> see ~/.config/arctus-ai/config.json")
-        if preset_name == "ollama":
+print(f"  {preset_name} -> see ~/.config/arctus-ai/config.json")
+
+if preset_name == "ollama":
     from arctus.setup import setup_ollama
-    setup_ollama()
-        elif preset_name in ("openrouter", "openrouter_free"):
+
+    if setup_ollama():
+        print("✅ Ollama setup completed successfully.")
+    else:
+        print("❌ Ollama setup failed.")
+        return 1
+
+elif preset_name in ("openrouter", "openrouter_free"):
+    key_set = bool(__import__("os").environ.get("OPENROUTER_API_KEY"))
+    print(
+        f"  OPENROUTER_API_KEY env: "
+        f"{'set' if key_set else 'NOT SET — export OPENROUTER_API_KEY=sk-or-...'}"
+    )
+
+return 0
             key_set = bool(__import__("os").environ.get("OPENROUTER_API_KEY"))
             print(f"  OPENROUTER_API_KEY env: {'set' if key_set else 'NOT SET — export OPENROUTER_API_KEY=sk-or-...'}")
         return 0
