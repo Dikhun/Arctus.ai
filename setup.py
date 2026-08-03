@@ -22,8 +22,9 @@ def setup_ollama():
     print("Checking model...")
 
     subprocess.run(
-        ["ollama", "pull", "llama3.2"],
-        check=False
+    ["ollama", "pull", "qwen2.5-coder:32b"],
+    check=False
+    )
     )
 
     print("✅ Ollama setup completed.")
