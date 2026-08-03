@@ -85,10 +85,11 @@ TIER_QUOTAS: Dict[str, Dict[str, Any]] = {
 class Config:
     # Lightweight tier: formatting, syntax checks, summaries, linting.
     fast: Tier = field(default_factory=lambda: Tier(
-        base_url=os.environ.get("ARCTUS_FAST_BASE_URL", "http://localhost:11434/v1"),
-        model=os.environ.get("ARCTUS_FAST_MODEL", "llama3.2"),
-        api_key=os.environ.get("ARCTUS_FAST_API_KEY", "ollama"),
-        temperature=0.2,
+    base_url=os.environ.get("ARCTUS_FAST_BASE_URL", "http://localhost:11434/v1"),
+    model=os.environ.get("ARCTUS_FAST_MODEL", "qwen2.5-coder:32b"),
+    api_key=os.environ.get("ARCTUS_FAST_API_KEY", "ollama"),
+    temperature=0.2,
+))
     ))
     # Primary tier: refactors, design decisions, multi-file changes.
     strong: Tier = field(default_factory=lambda: Tier(
