@@ -38,7 +38,7 @@ class PostgreSQLBackend:
                 """)
                 await conn.execute("""
                     CREATE INDEX IF NOT EXISTS idx_causal_events_graph_id 
- ON causal_events(graph_id)
+                    ON causal_events(graph_id)
                 """)
             return True
         except Exception as exc:
@@ -91,8 +91,8 @@ class RedisBackend:
         if self.client:
             try:
                 await self.client.close()
-            except Exception:
-                pass  # Wait, pass is forbidden. Use logging instead.
+            except Exception as exc:
+                logger.warning(f"Redis client close failed during recovery: {exc}")
         return await self.initialize()
 
 class Neo4jBackend:
@@ -147,7 +147,7 @@ class StorageManager:
         if pg_cfg.get("enabled", False):
             self.backends["postgresql"] = PostgreSQLBackend(pg_cfg.get("dsn"))
 
- redis_cfg = self.config.get("redis", {})
+        redis_cfg = self.config.get("redis", {})
         if redis_cfg.get("enabled", False):
             self.backends["redis"] = RedisBackend(redis_cfg.get("url"))
 
