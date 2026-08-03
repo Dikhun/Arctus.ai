@@ -41,7 +41,7 @@ class FrameworkRegistry:
                     json=payload,
                     headers={"Content-Type": "application/json"},
                 ) as resp:
-                    if resp.status in (200, 201, 202):
+ if resp.status in (200, 201, 202):
                         logger.info(f"Registry POST {path} succeeded")
                         return True
                     body = await resp.text()
@@ -61,4 +61,4 @@ class FrameworkRegistry:
                 "metrics": "/metrics",
                 "ready": "/ready",
             },
-        }
+                }
