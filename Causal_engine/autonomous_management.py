@@ -6,6 +6,8 @@ import time
 from dataclasses import asdict
 from typing import Any, Dict, List
 
+from .types import ServiceStatus
+
 logger = logging.getLogger(__name__)
 
 class AutonomousManager:
@@ -47,7 +49,7 @@ class AutonomousManager:
         report: Dict[str, Any] = {
             "timestamp": time.time(),
             "system": asdict(self.bootstrap.state.get("system_info", {})),
- }
+        }
         if self.bootstrap.storage_manager:
             health = await self.bootstrap.storage_manager.health_all()
             report["storage_health"] = {k: v.value for k, v in health.items()}
@@ -61,7 +63,7 @@ class AutonomousManager:
             return
         for name, backend in self.bootstrap.storage_manager.backends.items():
             health = await backend.health()
-            if health != "healthy":
+            if health != ServiceStatus.HEALTHY:
                 logger.warning(f"Healing storage backend: {name}")
                 await backend.recover()
 
@@ -81,7 +83,7 @@ class AutonomousManager:
         except ImportError:
             self.optimization_log.append(
                 {"note": "psutil unavailable", "ts": time.time()}
- )
+            )
 
     async def self_calibration(self) -> None:
         self.benchmark_results["calibrated_at"] = time.time()
