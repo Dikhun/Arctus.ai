@@ -1,7 +1,28 @@
 import shutil
 import subprocess
 
+def is_ollama_running():
+    pass
 
+
+def start_ollama():
+    pass
+
+
+def model_exists(model):
+    pass
+
+
+def pull_model(model):
+    pass
+
+
+def verify_connection():
+    pass
+
+
+def setup_ollama():
+    ...
 def setup_ollama():
     print("Checking Ollama...")
 
