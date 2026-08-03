@@ -2,9 +2,12 @@ import asyncio
 import json
 import logging
 import os
+import sys
 import shutil
 from datetime import datetime, timezone
 from typing import Any, Dict, Optional
+
+from .registration import FrameworkRegistry
 
 logger = logging.getLogger(__name__)
 
@@ -41,7 +44,9 @@ class CheckpointManager:
     async def rollback_storage(self, storage_manager: Any) -> bool:
         logger.warning("Rolling back storage to last known good state")
         result = await storage_manager.recover_all()
-        return all(result.values()) if result else False async def restart_service(self) -> bool:
+        return all(result.values()) if result else False
+
+    async def restart_service(self) -> bool:
         logger.info("Restarting service via sys.executable replacement")
         try:
             os.execv(sys.executable, [sys.executable] + sys.argv)
