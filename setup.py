@@ -81,8 +81,7 @@ def verify_connection():
         return False
 
     except Exception as e:
-        print(fif"❌ Cannot connect to Ollama: {e}")
-        return False
+        print(f"❌ Cannot connect to Ollama: {e}")
 
 
 def setup_ollama():
