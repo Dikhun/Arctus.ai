@@ -78,7 +78,7 @@ class IntegrationManager:
                 "AUTONOMOUS_IMPROVEMENT_ENDPOINT",
                 "http://localhost:9009",
             ),
- }
+        }
 
     async def discover_and_connect(self) -> Dict[str, bool]:
         results: Dict[str, bool] = {}
