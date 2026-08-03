@@ -55,8 +55,7 @@ Commands:
 Config:  ~/.config/arctus-ai/config.json
 Sessions: ~/.config/arctus-ai/sessions/*.json
 
-Tier defaults:
-  fast   -> http://localhost:11434/v1   model llama3.2  (Ollama, local)
+fast -> http://localhost:11434/v1   model qwen2.5-coder:32b  (Ollama, local)
   strong -> https://api.openai.com/v1   model gpt-4o-mini (set ARCTUS_STRONG_API_KEY)
 """
 
