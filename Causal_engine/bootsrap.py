@@ -155,7 +155,7 @@ class CausalEngineBootstrap:
             if self.storage_manager:
                 health = await self.storage_manager.health_all()
                 for name, status in health.items():
-                    logger.debug(f"Storage {name} status: {status.value}")
+ logger.debug(f"Storage {name} status: {status.value}")
 
     async def _continuous_health_loop(self) -> None:
         if not self.telemetry:
