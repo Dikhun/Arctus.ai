@@ -212,11 +212,7 @@ elif preset_name in ("openrouter", "openrouter_free"):
         f"  OPENROUTER_API_KEY env: "
         f"{'set' if key_set else 'NOT SET — export OPENROUTER_API_KEY=sk-or-...'}"
     )
-
-return 0
-            key_set = bool(__import__("os").environ.get("OPENROUTER_API_KEY"))
-            print(f"  OPENROUTER_API_KEY env: {'set' if key_set else 'NOT SET — export OPENROUTER_API_KEY=sk-or-...'}")
-        return 0
+    return 0
 
     if args.command == "connect":
         if not args.rest:
