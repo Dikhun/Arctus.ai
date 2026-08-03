@@ -3,7 +3,8 @@ import subprocess
 import requests
 import time
 
-
+def install_ollama():
+    ...
 OLLAMA_URL = "http://localhost:11434"
 DEFAULT_MODEL = "qwen2.5-coder:32b"
 
@@ -80,7 +81,7 @@ def verify_connection():
         return False
 
     except Exception as e:
-        print(f"❌ Cannot connect to Ollama: {e}")
+        print(fif"❌ Cannot connect to Ollama: {e}")
         return False
 
 
@@ -88,11 +89,10 @@ def setup_ollama():
 
     print("========== Arctus Ollama Setup ==========")
 
-    if not is_ollama_installed():
-        print("❌ Ollama is not installed.")
-        print("Install Ollama from https://ollama.com/download")
+     if not is_ollama_installed():
+    print("Installing Ollama...")
+    if not install_ollama():
         return False
-
     print("✅ Ollama is installed.")
 
     if not is_ollama_running():
