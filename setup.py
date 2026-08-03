@@ -1,12 +1,24 @@
 import shutil
 import subprocess
+import requests
 
 def is_ollama_running():
-    pass
-
+    try:
+        response = requests.get("http://localhost:11434/api/tags", timeout=2)
+        return response.status_code == 200
+    except Exception:
+        return False
 
 def start_ollama():
-    pass
+    try:
+        subprocess.Popen(
+            ["ollama", "serve"],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+        print("✅ Ollama server started.")
+    except Exception as e:
+        print(f"❌ Failed to start Ollama: {e}")
 
 
 def model_exists(model):
@@ -20,9 +32,6 @@ def pull_model(model):
 def verify_connection():
     pass
 
-
-def setup_ollama():
-    ...
 def setup_ollama():
     print("Checking Ollama...")
 
