@@ -11,6 +11,24 @@ from typing import Callable, Awaitable
 
 import asyncio
 from pydantic import BaseModel, Field
+from arctus.queen_module import (
+    ModelRouter,
+    PlanningModule,
+    CapabilitiesRouter,
+    AgentAllocator,
+    WorkflowPlanner,
+    ContextManager,
+    ContextExtractor,
+    MemoryRouter,
+    Dispatcher,
+    CommunicationModule,
+    VerificationManager,
+    Synthesizer,
+    LearningManager,
+    ProviderHealthMonitor,
+    RetryManager,
+    CostOptimizer,
+)
 
 
 # ==========================================================
@@ -205,16 +223,29 @@ class QueenAgent:
 
     llm: LLMCallable
 
-    planner: ExecutionPlanner = field(default_factory=ExecutionPlanner)
-    extractor: ContextExtractor = field(default_factory=ContextExtractor)
-    synthesizer: Synthesizer = field(default_factory=Synthesizer)
+model_router: ModelRouter = field(default_factory=ModelRouter)
+planning_module: PlanningModule = field(default_factory=PlanningModule)
+capabilities_router: CapabilitiesRouter = field(default_factory=CapabilitiesRouter)
+agent_allocator: AgentAllocator = field(default_factory=AgentAllocator)
+workflow_planner: WorkflowPlanner = field(default_factory=WorkflowPlanner)
+context_manager: ContextManager = field(default_factory=ContextManager)
+context_extractor: ContextExtractor = field(default_factory=ContextExtractor)
+memory_router: MemoryRouter = field(default_factory=MemoryRouter)
+dispatcher: Dispatcher = field(default_factory=Dispatcher)
+communication_module: CommunicationModule = field(default_factory=CommunicationModule)
+verification_manager: VerificationManager = field(default_factory=VerificationManager)
+synthesizer: Synthesizer = field(default_factory=Synthesizer)
+learning_manager: LearningManager = field(default_factory=LearningManager)
+provider_health: ProviderHealthMonitor = field(default_factory=ProviderHealthMonitor)
+retry_manager: RetryManager = field(default_factory=RetryManager)
+cost_optimizer: CostOptimizer = field(default_factory=CostOptimizer)
 
     async def run(
         self,
         request: UserRequest,
     ) -> str:
 
-        mode = self.planner.decide(request.prompt)
+        tasks = await self.plan(request)
 
         # -----------------------------
         # Fast Path
@@ -238,39 +269,3 @@ class QueenAgent:
             results,
             self.llm,
         )
-
-    async def plan(
-        self,
-        request: UserRequest,
-    ) -> list[Task]:
-
-        """
-        Replace this with your planner model.
-        """
-
-        return [
-            Task(
-                id="backend",
-                title="Backend",
-                role="Backend Engineer",
-                domain="Clean Architecture and High Performance Python",
-                action="implement backend services",
-                context="Implement backend API",
-            ),
-            Task(
-                id="frontend",
-                title="Frontend",
-                role="Frontend Engineer",
-                domain="Modern React Architecture",
-                action="build frontend",
-                context="Create responsive UI",
-            ),
-            Task(
-                id="security",
-                title="Security",
-                role="Security Analyst",
-                domain="OWASP Top 10",
-                action="audit the implementation",
-                context="Review authentication",
-            ),
-      ]
