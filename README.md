@@ -81,60 +81,24 @@ python main.py "your task"
 
 # Quick Start
 
-## 1. Clone Arctus
+## Quick Start
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/arctus-ai.git
-cd arctus-ai
+git clone https://github.com/Dikhun/Arctus.ai.git
+cd Arctus.ai
+python3 -m pip install -e .
+python3 main.py setup ollama
+python3 main.py
 ```
 
-## 2. Install Arctus
+The setup command automatically:
 
-```bash
-pip install -e .
-```
-
-## 3. Install Ollama
-
-Download and install Ollama:
-
-https://ollama.com/download
-
-## 4. Automatic Setup
-
-```bash
-python main.py setup ollama
-```
-
-This command automatically:
-
-- ✅ Detects whether Ollama is installed
-- ✅ Starts the Ollama server if it isn't running
-- ✅ Downloads the configured model (default: `qwen2.5-coder:32b`) if it's missing
-- ✅ Verifies the connection
-- ✅ Configures Arctus to use Ollama
-
-## 5. Start Arctus
-
-```bash
-python main.py
-```
-
-or run a task directly:
-
-```bash
-python main.py "Build a FastAPI authentication system"
-```
-if already installed ollama used this 
-# Quick Start
-
-```bash
-git clone https://github.com/YOUR_USERNAME/arctus-ai.git
-cd arctus-ai
-pip install -e .
-python main.py setup ollama
-python main.py
-```
+- Detects whether Ollama is installed.
+- Installs Ollama if it is missing (if your installer supports this).
+- Starts the Ollama server.
+- Downloads the default model (`qwen2.5-coder:32b`) if needed.
+- Verifies the connection.
+- Configures Arctus to use the local Ollama instance.
 ### 1c. Connect to OpenRouter (cloud models)
 
 ```bash
