@@ -60,53 +60,6 @@ class TaskResult(BaseModel):
 
 
 # ==========================================================
-# Planner
-# ==========================================================
-
-
-    
-
-# ==========================================================
-# Context Isolation
-# ==========================================================
-
-class ContextExtractor:
-
-    def extract(self, history: list[str], task: Task) -> str:
-
-        """
-        Only pass relevant context.
-
-        Never send the entire conversation.
-        """
-
-        relevant = []
-
-        for item in history[-8:]:
-
-            if task.title.lower() in item.lower():
-                relevant.append(item)
-
-        return "\n".join(relevant)
-
-
-# ==========================================================
-# Prompt Framing
-# ==========================================================
-
-class PromptFramer:
-
-    def build(self, task: Task) -> str:
-
-        return (
-            f"You are an expert {task.role}. "
-            f"According to {task.domain}, "
-            f"your task is to {task.action}.\n\n"
-            f"{task.context}"
-        )
-
-
-# ==========================================================
 # Interfaces
 # ==========================================================
 
@@ -139,22 +92,18 @@ class QueenAgent:
         request: UserRequest,
     ) -> str:
 
-        tasks = await self.plan(request)
+        tasks = await self.planning_module.plan(request)
 
         # -----------------------------
         # Fast Path
-        # -----------------------------
-
-            return await self.llm(request.prompt)
+if mode == ExecutionMode.FAST_PATH:  # or `if mode is ExecutionMode.FAST_PATH:`
+    return await self.llm(request.prompt)
 
         # -----------------------------
         # Planning
         # -----------------------------
 
-        dispatcher = Dispatcher(self.llm)
-
-        results = await dispatcher.dispatch(tasks)
-
+        results = await self.dispatcher.dispatch(tasks)
         return await self.synthesizer.merge(
             results,
             self.llm,
