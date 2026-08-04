@@ -583,7 +583,20 @@ class PlanValidatorImpl(PlanValidator):
                 )
 
         return violations
+class ExecutionPlannerImpl(ExecutionPlanner):
 
+    def __init__(
+        self,
+        intent_analyzer: IntentAnalyzer,
+        task_decomposer: TaskDecomposer,
+        validator: PlanValidator,
+    ) -> None:
+        self.intent_analyzer = intent_analyzer
+        self.task_decomposer = task_decomposer
+        self.validator = validator
+
+    async def create_plan(self, raw_input: str):
+        ...
 Responsible for intent analysis, goal extraction, constraint analysis,
 complexity analysis, risk analysis, priority analysis, parallelism
 planning, dependency planning, execution strategy generation, task
