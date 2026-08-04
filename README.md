@@ -81,8 +81,6 @@ python main.py "your task"
 
 # Quick Start
 
-## Quick Start
-
 ```bash
 git clone https://github.com/Dikhun/Arctus.ai.git
 cd Arctus.ai
