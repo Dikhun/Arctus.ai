@@ -7,7 +7,7 @@ pipeline optimization, and execution graph construction.
 from __future__ import annotations
 
 import uuid
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional, Set, Tuple
 
 from domain_models import ExecutionMode, ExecutionPlan, SubTask, TaskStatus
@@ -403,4 +403,4 @@ async def create_workflow_planner(
     return WorkflowPlannerImpl(
         enable_pipeline_optimization=enable_pipeline_optimization,
         event_bus=event_bus,
-          )
+            )
