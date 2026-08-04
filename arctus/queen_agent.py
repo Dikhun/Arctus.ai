@@ -35,11 +35,6 @@ from arctus.queen_module import (
 # Models
 # ==========================================================
 
-class ExecutionMode(str, Enum):
-    FAST_PATH = "fast_path"
-    PARALLEL = "parallel"
-
-
 class UserRequest(BaseModel):
     prompt: str
     history: list[str] = Field(default_factory=list)
@@ -93,11 +88,6 @@ class QueenAgent:
     ) -> str:
 
         tasks = await self.planning_module.plan(request)
-
-        # -----------------------------
-        # Fast Path
-if mode == ExecutionMode.FAST_PATH:  # or `if mode is ExecutionMode.FAST_PATH:`
-    return await self.llm(request.prompt)
 
         # -----------------------------
         # Planning
