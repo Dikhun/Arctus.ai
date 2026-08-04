@@ -470,7 +470,89 @@ class PlanValidatorImpl(PlanValidator):
 
         return violations
 
-    async def _validate_dependencies(self, plan: ExecutionPlan) -> List[str]:
+    async def _validate_dependencies(...):
+    ...
+    return violations
+    def _validate_safety(self, plan: ExecutionPlan) -> List[str]:
+    """Validate safety rules."""
+
+    violations: List[str] = []
+
+    if not plan.safety_rules:
+        return violations
+
+    for rule in plan.safety_rules:
+        if not rule.enabled:
+            continue
+
+        if rule.rule_type.name == "MUTEX":
+            task_ids = set(rule.parameters.get("tasks", []))
+            running = [
+                t for t in plan.subtasks
+                if str(t.id) in task_ids and t.status.name == "RUNNING"
+            ]
+
+            max_concurrent = rule.parameters.get("max_concurrent", 1)
+
+            if len(running) > max_concurrent:
+                violations.append(
+                    f"Mutex rule '{rule.name}' violated."
+                )
+
+        elif rule.rule_type.name == "SEQUENCE":
+            sequence = rule.parameters.get("sequence", [])
+
+            completed = [
+                str(t.id)
+                for t in sorted(
+                    plan.subtasks,
+                    key=lambda x: x.started_at or 0
+                )
+                if t.status.name == "COMPLETED"
+            ]
+
+            if completed[:len(sequence)] != sequence:
+                violations.append(
+                    f"Sequence rule '{rule.name}' violated."
+                )
+
+        elif rule.rule_type.name == "RESOURCE_CAP":
+            resource = rule.parameters.get("resource")
+            cap = rule.parameters.get("cap", 0)
+
+            usage = sum(
+                t.resource_usage.get(resource, 0)
+                for t in plan.subtasks
+                if hasattr(t, "resource_usage")
+            )
+
+            if usage > cap:
+                violations.append(
+                    f"Resource cap exceeded for {resource}."
+                )
+
+    return violations
+    def _validate_budget(self, plan: ExecutionPlan) -> List[str]:
+    violations: List[str] = []
+
+    if not getattr(plan, "total_estimated_cost", None):
+        return violations
+
+    return violations
+
+        if (
+            plan.total_estimated_cost
+            and plan.total_estimated_cost.estimated_cost_usd
+            > self.max_estimated_cost_usd
+        ):
+            violations.append(
+                f"Estimated cost "
+                f"{plan.total_estimated_cost.estimated_cost_usd} "
+                f"exceeds maximum allowed "
+                f"{self.max_estimated_cost_usd}"
+            )
+
+        return violations
         """Validate dependency graph for cycles and reachability."""
         from dependency_graph import DependencyGraphImpl
         graph = DependencyGraphImpl()
@@ -486,8 +568,21 @@ class PlanValidatorImpl(PlanValidator):
         if cycle:
             violations.append(f"Circular dependency detected: {' -> '.join(str(n) for n in cycle)}")
 
-        # Check all tasks reachable from r
-"""Arctus AI Orchestration Framework - Planning Module.
+        # Check all tasks are reachable from the root task
+        if plan.root_task_id in adj:
+            reachable = await graph.reachable_from(plan.root_task_id, adj)
+
+            unreachable = {
+                task.id for task in plan.subtasks
+            } - reachable
+
+            if unreachable:
+                violations.append(
+                    f"Unreachable tasks detected: "
+                    f"{', '.join(str(t) for t in unreachable)}"
+                )
+
+        return violations
 
 Responsible for intent analysis, goal extraction, constraint analysis,
 complexity analysis, risk analysis, priority analysis, parallelism
