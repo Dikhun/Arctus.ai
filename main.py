@@ -1,22 +1,6 @@
+cat << 'EOF' > main.py
 #!/usr/bin/env python3
-"""Arctus.ai CLI.
-
-Usage:
-    python main.py                       # interactive REPL
-    python main.py "do something"        # one-shot task
-    python main.py config                # show config
-    python main.py config-set '{"strong":{"model":"gpt-4o"}}'
-    python main.py setup ollama          # connect to local Ollama
-    python main.py setup openrouter      # connect to OpenRouter
-    python main.py setup hf              # use the free-tier model preset
-    python main.py connect <hf-space-url>  # link to a remote HF-hosted instance
-    python main.py show <session-id>
-    python main.py reset <session-id> [--scope all|history]
-    python main.py --help | -h
-
-Everything runs locally. No tunnels, no header forwarding, no remote servers.
-Keys come from your environment or ~/.config/arctus-ai/config.json.
-"""
+"""Arctus.ai CLI."""
 from __future__ import annotations
 
 import argparse
@@ -33,10 +17,7 @@ from arctus import session as session_store
 
 
 HELP_TEXT = """\
-Arctus.ai — local-first multi-agent orchestrator (Plan -> Route -> Execute -> Verify)
-
-Runs entirely on YOUR machine. No tunnels, no remote servers, no credential
-forwarding. Your API key stays in your environment.
+Arctus.ai — local-first multi-agent orchestrator
 
 Commands:
   arctus                            interactive REPL
@@ -51,12 +32,6 @@ Commands:
   arctus show <session-id>          print a saved session
   arctus reset <session-id>         clear a session (--scope all|history)
   arctus --help | -h                this help
-
-Config:  ~/.config/arctus-ai/config.json
-Sessions: ~/.config/arctus-ai/sessions/*.json
-
-fast -> http://localhost:11434/v1   model qwen2.5-coder:32b  (Ollama, local)
-  strong -> https://api.openai.com/v1   model gpt-4o-mini (set ARCTUS_STRONG_API_KEY)
 """
 
 
@@ -217,10 +192,7 @@ def main(argv: Optional[List[str]] = None) -> int:
 
     if args.command == "connect":
         if not args.rest:
-            print("usage: arctus connect <hf-space-url> [--key KEY]",
-                  file=sys.stderr)
-            print("Link this CLI to a remote Hugging Face-hosted Arctus instance.",
-                  file=sys.stderr)
+            print("usage: arctus connect <hf-space-url> [--key KEY]", file=sys.stderr)
             return 2
         url = args.rest[0].rstrip("/")
         key = ""
@@ -234,16 +206,11 @@ def main(argv: Optional[List[str]] = None) -> int:
                           api_key=key or cfg.strong.api_key, temperature=0.4)
         save_config(cfg)
         print(_stamp(f"Linked to remote instance: {url}"))
-        print(f"  Both tiers now point at {base}")
-        print(f"  Tasks run on the HF-hosted agent — no local clone needed.")
-        if not key:
-            print("  (No API key set. Add --key <token> if the instance requires one.)")
         return 0
 
     if args.command == "merge-repo":
         if not args.rest:
             print("usage: arctus merge-repo <git-url> [--dest <name>]", file=sys.stderr)
-            print("Shallow-clones a repo into ./repos/<name> for agent access.", file=sys.stderr)
             return 2
         url = args.rest[0]
         dest_name = ""
@@ -264,7 +231,6 @@ def main(argv: Optional[List[str]] = None) -> int:
                 check=True, capture_output=True,
             )
             print(_stamp(f"merge-repo: cloned {dest_name} into {target}"))
-            print(f"  Agents can now read files from {target}")
         except FileNotFoundError:
             print("  git not installed — merge-repo requires git.", file=sys.stderr)
             return 2
@@ -306,5 +272,6 @@ def main(argv: Optional[List[str]] = None) -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+EOF
 
-        
+            
