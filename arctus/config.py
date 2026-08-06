@@ -90,7 +90,6 @@ class Config:
     api_key=os.environ.get("ARCTUS_FAST_API_KEY", "ollama"),
     temperature=0.2,
 ))
-    ))
     # Primary tier: refactors, design decisions, multi-file changes.
     strong: Tier = field(default_factory=lambda: Tier(
         base_url=os.environ.get("ARCTUS_STRONG_BASE_URL", "https://api.openai.com/v1"),
