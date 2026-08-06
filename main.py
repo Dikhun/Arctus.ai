@@ -1,4 +1,3 @@
-cat << 'EOF' > main.py
 #!/usr/bin/env python3
 """Arctus.ai CLI."""
 from __future__ import annotations
@@ -8,11 +7,12 @@ import json
 import logging
 import subprocess
 import sys
+import time
 from dataclasses import asdict
 from pathlib import Path
 from typing import List, Optional
 
-from arctus import Config, Tier, QueenAgent, RateLimitConfig, load_config, save_config
+from arctus import Config, Tier, QueenAgent, load_config, save_config
 from arctus import session as session_store
 
 
@@ -69,19 +69,25 @@ def _run_task(prompt: str, cfg: Config, session_id: str) -> None:
         print(_stamp(f"  [{w.get('tier')}] {w.get('step')} ({w.get('tokens_used', 0)} tok)"))
     if result.verification:
         print(_stamp(f"Verify: done={result.verification.get('done')} — {result.verification.get('notes')}"))
-    print("\n=== RESULT ===")
-    print("\n\n".join(w.get("result", "") for w in result.work))
-    print("==============\n")
+    print("
+=== RESULT ===")
+    print("
+
+".join(w.get("result", "") for w in result.work))
+    print("==============
+")
 
 
 def _repl(cfg: Config) -> None:
-    print("Arctus.ai REPL. Type a task, or :quit to exit.\n")
-    session_id = f"repl-{int(__import__('time').time())}"
+    print("Arctus.ai REPL. Type a task, or :quit to exit.
+")
+    session_id = f"repl-{int(time.time())}"
     while True:
         try:
             line = input("arctus> ").strip()
         except (EOFError, KeyboardInterrupt):
-            print("\nbye.")
+            print("
+bye.")
             return
         if not line:
             continue
@@ -172,7 +178,6 @@ def main(argv: Optional[List[str]] = None) -> int:
 
         if preset_name == "ollama":
             from arctus.setup import setup_ollama
-
             if setup_ollama():
                 print("✅ Ollama setup completed successfully.")
                 return 0
@@ -180,7 +185,7 @@ def main(argv: Optional[List[str]] = None) -> int:
                 print("❌ Ollama setup failed.")
                 return 1
 
-        elif preset_name in ("openrouter", "openrouter_free"):
+        if preset_name in ("openrouter", "openrouter_free"):
             key_set = bool(__import__("os").environ.get("OPENROUTER_API_KEY"))
             print(
                 f"  OPENROUTER_API_KEY env: "
@@ -192,7 +197,16 @@ def main(argv: Optional[List[str]] = None) -> int:
 
     if args.command == "connect":
         if not args.rest:
-                    base = url + "/v1" if not url.endswith("/v1") else url
+            print("usage: arctus connect <hf-space-url> [--key <api-key>]", file=sys.stderr)
+            return 2
+
+        url = args.rest[0]
+        key = None
+        if "--key" in args.rest:
+            i = args.rest.index("--key")
+            key = args.rest[i + 1] if i + 1 < len(args.rest) else None
+
+        base = url + "/v1" if not url.endswith("/v1") else url
         cfg.fast = Tier(base_url=base, model=cfg.fast.model,
                         api_key=key or cfg.fast.api_key, temperature=0.2)
         cfg.strong = Tier(base_url=base, model=cfg.strong.model,
@@ -231,7 +245,8 @@ def main(argv: Optional[List[str]] = None) -> int:
             stderr = e.stderr.decode(errors="ignore").strip()
             print(f"  FAILED: {stderr}", file=sys.stderr)
             if target.exists():
-                import shutil; shutil.rmtree(target, ignore_errors=True)
+                import shutil
+                shutil.rmtree(target, ignore_errors=True)
             return 2
         return 0
 
@@ -254,12 +269,12 @@ def main(argv: Optional[List[str]] = None) -> int:
         print(json.dumps(session_store.reset(sid, scope=scope), indent=2))
         return 0
 
-        if args.command == "repl":
+    if args.command == "repl":
         _repl(cfg)
         return 0
 
     prompt = " ".join([args.command] + args.rest).strip()
-    _run_task(prompt, cfg, session_id=f"task-{int(__import__('time').time())}")
+    _run_task(prompt, cfg, session_id=f"task-{int(time.time())}")
     return 0
 
 
