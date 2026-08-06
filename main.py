@@ -192,14 +192,7 @@ def main(argv: Optional[List[str]] = None) -> int:
 
     if args.command == "connect":
         if not args.rest:
-            print("usage: arctus connect <hf-space-url> [--key KEY]", file=sys.stderr)
-            return 2
-        url = args.rest[0].rstrip("/")
-        key = ""
-        if "--key" in args.rest:
-            i = args.rest.index("--key")
-            key = args.rest[i + 1] if i + 1 < len(args.rest) else ""
-        base = url + "/v1" if not url.endswith("/v1") else url
+                    base = url + "/v1" if not url.endswith("/v1") else url
         cfg.fast = Tier(base_url=base, model=cfg.fast.model,
                         api_key=key or cfg.fast.api_key, temperature=0.2)
         cfg.strong = Tier(base_url=base, model=cfg.strong.model,
@@ -272,6 +265,4 @@ def main(argv: Optional[List[str]] = None) -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-EOF
-
-            
+  
