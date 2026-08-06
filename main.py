@@ -93,7 +93,8 @@ def _repl(cfg: Config) -> None:
         try:
             _run_task(line, cfg, session_id)
         except Exception as e:
-            print(_stamp(f"Error: {e}")
+            print(_stamp(f"Error: {e}"))
+                  
 
 
 def main(argv: Optional[List[str]] = None) -> int:
