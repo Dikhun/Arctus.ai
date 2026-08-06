@@ -1,7 +1,15 @@
+"""
+Arctus AI Setup Module
+
+Contains installers and configuration utilities for supported providers.
+"""
+
 import shutil
 import subprocess
 import requests
 import time
+
+__version__ = "1.0.0"
 
 OLLAMA_URL = "http://localhost:11434"
 DEFAULT_MODEL = "qwen2.5-coder:32b"
