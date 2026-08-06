@@ -48,12 +48,11 @@ PRESETS: Dict[str, Dict[str, str]] = {
         "api_key_env": "OMNIROUTE_API_KEY",
         "applies_to": "fast",
     },
-    "ollama": {
-    "base_url": "http://localhost:11434/v1",
-    "model": "qwen2.5-coder:32b",
-    "api_key_env": "",
-    "applies_to": "fast",
-},
+        "ollama": {
+        "base_url": "http://localhost:11434/v1",
+        "model": "qwen2.5-coder:32b",
+        "api_key_env": "",
+        "applies_to": "fast",
     },
     "openai": {
         "base_url": "https://api.openai.com/v1",
@@ -67,6 +66,9 @@ PRESETS: Dict[str, Dict[str, str]] = {
         "model": "anthropic/claude-3.5-sonnet",
         "api_key_env": "OPENROUTER_API_KEY",
         "applies_to": "strong",
+    },
+}
+
     },
 }
 
