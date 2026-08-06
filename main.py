@@ -167,7 +167,6 @@ def main(argv: Optional[List[str]] = None) -> int:
                 merged[k].update(v)
             else:
                 merged[k] = v
-        # Re-build dataclasses from merged dict.
         new_cfg = Config(
             fast=Tier(**merged["fast"]),
             strong=Tier(**merged["strong"]),
@@ -187,7 +186,6 @@ def main(argv: Optional[List[str]] = None) -> int:
             print(f"Unknown setup target {target!r}. Valid: {', '.join(valid)}",
                   file=sys.stderr)
             return 2
-        # 'hf' maps to the free-tier preset for hosted deployments.
         preset_name = "openrouter_free" if target == "hf" else target
         try:
             cfg = presets.apply_preset(preset_name, cfg=cfg)
@@ -195,24 +193,27 @@ def main(argv: Optional[List[str]] = None) -> int:
             print(str(e), file=sys.stderr)
             return 2
         print(_stamp(f"Setup complete: applied '{preset_name}' preset."))
-print(f"  {preset_name} -> see ~/.config/arctus-ai/config.json")
+        print(f"  {preset_name} -> see ~/.config/arctus-ai/config.json")
 
-if preset_name == "ollama":
-    from arctus.setup import setup_ollama
+        if preset_name == "ollama":
+            from arctus.setup import setup_ollama
 
-    if setup_ollama():
-        print("✅ Ollama setup completed successfully.")
-    else:
-        print("❌ Ollama setup failed.")
-        sys.exit(1)
+            if setup_ollama():
+                print("✅ Ollama setup completed successfully.")
+                return 0
+            else:
+                print("❌ Ollama setup failed.")
+                return 1
 
-elif preset_name in ("openrouter", "openrouter_free"):
-    key_set = bool(__import__("os").environ.get("OPENROUTER_API_KEY"))
-    print(
-        f"  OPENROUTER_API_KEY env: "
-        f"{'set' if key_set else 'NOT SET — export OPENROUTER_API_KEY=sk-or-...'}"
-    )
-    return 0
+        elif preset_name in ("openrouter", "openrouter_free"):
+            key_set = bool(__import__("os").environ.get("OPENROUTER_API_KEY"))
+            print(
+                f"  OPENROUTER_API_KEY env: "
+                f"{'set' if key_set else 'NOT SET — export OPENROUTER_API_KEY=sk-or-...'}"
+            )
+            return 0
+
+        return 0
 
     if args.command == "connect":
         if not args.rest:
@@ -226,8 +227,6 @@ elif preset_name in ("openrouter", "openrouter_free"):
         if "--key" in args.rest:
             i = args.rest.index("--key")
             key = args.rest[i + 1] if i + 1 < len(args.rest) else ""
-        # Point both tiers at the remote HF instance so external CLIs can
-        # drive the hosted agent without cloning or pip-installing the repo.
         base = url + "/v1" if not url.endswith("/v1") else url
         cfg.fast = Tier(base_url=base, model=cfg.fast.model,
                         api_key=key or cfg.fast.api_key, temperature=0.2)
@@ -252,7 +251,6 @@ elif preset_name in ("openrouter", "openrouter_free"):
             i = args.rest.index("--dest")
             dest_name = args.rest[i + 1] if i + 1 < len(args.rest) else ""
         if not dest_name:
-            # Derive name from URL: last path segment, strip .git
             dest_name = url.rstrip("/").rsplit("/", 1)[-1].removesuffix(".git")
         target = Path("repos") / dest_name
         if target.exists():
@@ -301,7 +299,6 @@ elif preset_name in ("openrouter", "openrouter_free"):
         _repl(cfg)
         return 0
 
-    # Anything else = one-shot task (joined).
     prompt = " ".join([args.command] + args.rest).strip()
     _run_task(prompt, cfg, session_id=f"task-{int(__import__('time').time())}")
     return 0
@@ -309,3 +306,4 @@ elif preset_name in ("openrouter", "openrouter_free"):
 
 if __name__ == "__main__":
     raise SystemExit(main())
+        
