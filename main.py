@@ -254,7 +254,7 @@ def main(argv: Optional[List[str]] = None) -> int:
         print(json.dumps(session_store.reset(sid, scope=scope), indent=2))
         return 0
 
-    if args.command == "repl":
+        if args.command == "repl":
         _repl(cfg)
         return 0
 
@@ -265,4 +265,3 @@ def main(argv: Optional[List[str]] = None) -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-  
