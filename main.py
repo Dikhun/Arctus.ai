@@ -204,7 +204,7 @@ if preset_name == "ollama":
         print("✅ Ollama setup completed successfully.")
     else:
         print("❌ Ollama setup failed.")
-        return 1
+        sys.exit(1)
 
 elif preset_name in ("openrouter", "openrouter_free"):
     key_set = bool(__import__("os").environ.get("OPENROUTER_API_KEY"))
