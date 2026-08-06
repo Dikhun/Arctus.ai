@@ -1,19 +1,4 @@
-"""Tier presets for common providers.
-
-These are OpenAI-compatible endpoints. The thing I refused earlier was the
-*header-forwarding* design — NOT these providers. OpenRouter and OmniRoute
-are perfectly fine when used the normal way: your local config holds your
-key, the orchestrator calls the endpoint directly. No tunnels, no forwarding.
-
-Usage:
-    from arctus.presets import apply_preset
-    apply_preset("openrouter")           # sets strong tier to OpenRouter
-    apply_preset("omniroute_local")      # fast tier -> local OmniRoute
-    apply_preset("ollama")               # fast tier -> local Ollama
-    apply_preset("openai")               # strong tier -> OpenAI
-
-Env vars take precedence; presets only fill in defaults if the env var is unset.
-"""
+"""Tier presets for common providers."""
 from __future__ import annotations
 
 import os
@@ -42,13 +27,12 @@ PRESETS: Dict[str, Dict[str, str]] = {
         "applies_to": "fast",
     },
     "omniroute_remote": {
-        # OmniRoute cloud endpoint (OpenAI-compatible). User supplies key.
         "base_url": "https://api.omniroute.ai/v1",
         "model": "llama3.2",
         "api_key_env": "OMNIROUTE_API_KEY",
         "applies_to": "fast",
     },
-        "ollama": {
+    "ollama": {
         "base_url": "http://localhost:11434/v1",
         "model": "qwen2.5-coder:32b",
         "api_key_env": "",
@@ -66,9 +50,6 @@ PRESETS: Dict[str, Dict[str, str]] = {
         "model": "anthropic/claude-3.5-sonnet",
         "api_key_env": "OPENROUTER_API_KEY",
         "applies_to": "strong",
-    },
-}
-
     },
 }
 
@@ -110,3 +91,4 @@ def apply_preset_silent(name: str, cfg: Config | None = None) -> Config:
 
 def list_presets() -> Dict[str, Dict[str, str]]:
     return PRESETS
+    
