@@ -16,7 +16,9 @@ from arctus import session as session_store
 
 HELP_TEXT = """\
 Arctus.ai — local-first multi-agent orchestrator
-
+  arctus setup ollama               connect fast tier to local Ollama (default)
+  arctus status                     check local Ollama & provider health
+  
 Commands:
   arctus                            interactive REPL
   arctus "do something"             run a single task and exit
