@@ -148,9 +148,9 @@ def main(argv: Optional[List[str]] = None) -> int:
             strong=Tier(**merged["strong"]),
             **{k: v for k, v in merged.items() if k not in ("fast", "strong")},
         )
-        path = save_config(new_cfg)
-        print(f"Saved to {path}")
-        return 0
+            if args.command == "status":
+        from arctus.setup import check_status
+        return 0 if check_status() else 1
 
     if args.command == "setup":
         from arctus import presets
