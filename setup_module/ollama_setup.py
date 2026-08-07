@@ -114,4 +114,17 @@ def setup_ollama():
     print(f"Model    : {DEFAULT_MODEL}")
 
     return True
+    def check_status() -> bool:
+    """Check and display the status of Ollama and local setup."""
+    print("========== Arctus System Status ==========")
+    installed = is_ollama_installed()
+    running = is_ollama_running() if installed else False
+    model_ready = model_exists(DEFAULT_MODEL) if running else False
+
+    print(f"Ollama CLI Installed : {'✅' if installed else '❌'}")
+    print(f"Ollama Server        : {'✅ Running' if running else '❌ Stopped'}")
+    print(f"Model ({DEFAULT_MODEL}) : {'✅ Ready' if model_ready else '❌ Missing'}")
+    print("==========================================")
+    return installed and running and model_ready
+    
     
