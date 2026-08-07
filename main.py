@@ -96,7 +96,6 @@ def _repl(cfg: Config) -> None:
             _run_task(line, cfg, session_id)
         except Exception as e:
             print(_stamp(f"Error: {e}"))
-                  
 
 
 def main(argv: Optional[List[str]] = None) -> int:
@@ -148,7 +147,11 @@ def main(argv: Optional[List[str]] = None) -> int:
             strong=Tier(**merged["strong"]),
             **{k: v for k, v in merged.items() if k not in ("fast", "strong")},
         )
-            if args.command == "status":
+        save_config(new_cfg)
+        print(_stamp("Config updated."))
+        return 0
+
+    if args.command == "status":
         from arctus.setup import check_status
         return 0 if check_status() else 1
 
@@ -273,4 +276,4 @@ def main(argv: Optional[List[str]] = None) -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-  
+          
