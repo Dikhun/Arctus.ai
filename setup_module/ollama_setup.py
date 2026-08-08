@@ -1,130 +1,49 @@
-"""
-Arctus AI Setup Module
+<parameter name="language">python</parameter>
+# ============================================================================
+# FILE 1: setup.py - Package Setup & CLI Entry Points
+# ============================================================================
+# Location: project_root/setup.py
+# Purpose: Defines package metadata, dependencies, and console scripts
+# ============================================================================
 
-Contains installers and configuration utilities for supported providers.
-"""
+from setuptools import setup, find_packages
+import os
 
-import shutil
-import subprocess
-import requests
-import time
+# Read requirements
+requirements = [
+    "requests>=2.31.0",
+    "pydantic>=2.0.0",
+    "rich>=13.0.0",
+    "click>=8.1.0",
+    "pyyaml>=6.0",
+    "python-dotenv>=1.0.0",
+    "httpx>=0.25.0",
+    "aiohttp>=3.9.0",
+    "websockets>=12.0",
+    "fastapi>=0.104.0",
+    "uvicorn>=0.24.0",
+    "jinja2>=3.1.0",
+]
 
-__version__ = "1.0.0"
-
-OLLAMA_URL = "http://localhost:11434"
-DEFAULT_MODEL = "qwen2.5-coder:32b"
-
-
-def is_ollama_installed():
-    return shutil.which("ollama") is not None
-
-
-def is_ollama_running():
-    try:
-        response = requests.get(f"{OLLAMA_URL}/api/tags", timeout=2)
-        return response.status_code == 200
-    except Exception:
-        return False
-
-
-def start_ollama():
-    try:
-        subprocess.Popen(
-            ["ollama", "serve"],
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-        )
-        print("Starting Ollama server...")
-        for _ in range(15):
-            if is_ollama_running():
-                print("✅ Ollama server is running.")
-                return True
-            time.sleep(1)
-        print("❌ Ollama failed to start.")
-        return False
-    except Exception as e:
-        print(f"❌ Failed to start Ollama: {e}")
-        return False
-
-
-def model_exists(model):
-    try:
-        result = subprocess.run(
-            ["ollama", "list"],
-            capture_output=True,
-            text=True,
-            check=False,
-        )
-        return model in result.stdout
-    except Exception:
-        return False
-
-
-def pull_model(model):
-    print(f"Downloading model: {model}")
-    result = subprocess.run(
-        ["ollama", "pull", model],
-        check=False,
-    )
-    return result.returncode == 0
-
-
-def verify_connection():
-    try:
-        response = requests.get(f"{OLLAMA_URL}/api/tags", timeout=5)
-        if response.status_code == 200:
-            print("✅ Ollama connection verified.")
-            return True
-        print("❌ Ollama returned an unexpected response.")
-        return False
-    except Exception as e:
-        print(f"❌ Cannot connect to Ollama: {e}")
-        return False
-
-
-def setup_ollama():
-    print("========== Arctus Ollama Setup ==========")
-
-    if not is_ollama_installed():
-        print("❌ Ollama is not installed. Run 'brew install ollama' or download it from ollama.com")
-        return False
-
-    if not is_ollama_running():
-        if not start_ollama():
-            return False
-    else:
-        print("✅ Ollama server already running.")
-
-    print("Checking local models...")
-
-    if not model_exists(DEFAULT_MODEL):
-        if not pull_model(DEFAULT_MODEL):
-            print("❌ Failed to download model.")
-            return False
-    else:
-        print(f"✅ {DEFAULT_MODEL} already installed.")
-
-    if not verify_connection():
-        return False
-
-    print("=========================================")
-    print("✅ Arctus is ready to use with Ollama.")
-    print(f"Provider : Ollama")
-    print(f"Endpoint : {OLLAMA_URL}")
-    print(f"Model    : {DEFAULT_MODEL}")
-
-    return True
-    def check_status() -> bool:
-    """Check and display the status of Ollama and local setup."""
-    print("========== Arctus System Status ==========")
-    installed = is_ollama_installed()
-    running = is_ollama_running() if installed else False
-    model_ready = model_exists(DEFAULT_MODEL) if running else False
-
-    print(f"Ollama CLI Installed : {'✅' if installed else '❌'}")
-    print(f"Ollama Server        : {'✅ Running' if running else '❌ Stopped'}")
-    print(f"Model ({DEFAULT_MODEL}) : {'✅ Ready' if model_ready else '❌ Missing'}")
-    print("==========================================")
-    return installed and running and model_ready
-    
-    
+setup(
+    name="arctus-ai",
+    version="1.0.0",
+    description="Local-first multi-agent orchestration framework",
+    author="Arctus Team",
+    python_requires=">=3.9",
+    packages=find_packages(where="src"),
+    package_dir={"": "src"},
+    install_requires=requirements,
+    extras_require={
+        "dev": ["pytest>=7.0", "black>=23.0", "mypy>=1.0"],
+        "ollama": ["ollama>=0.1.0"],
+    },
+    entry_points={
+        "console_scripts": [
+            "arctus=arctus.main:cli_main",
+            "arctus-dashboard=arctus.dashboard:launch_dashboard",
+        ],
+    },
+    include_package_data=True,
+    zip_safe=False,
+)
