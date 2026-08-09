@@ -3,172 +3,429 @@
 ---
 
 ---
-# Arctus AI Operating System
+<parameter name="language">markdown</parameter>
+# Arctus AI - Setup Commands Reference
 
-Enterprise Autonomous Multi-Agent Operating System
+## Project Structure
 
-Predict • Reason • Simulate • Execute • Learn
-# Arctus.ai
-                Arctus AI Operating System
-
-                    Queen Orchestrator
-                           │
-     ┌─────────────────────┼──────────────────────┐
-     │                     │                      │
- Agent Mesh          Research Engine      Simulation Engine
-     │                     │                      │
- Digital Twin       Knowledge Graph      Experience Replay
-     │                     │                      │
- Persistent Memory  Capability Graph     Verification Engine
-     │
- Runtime Kernel
-A **local-first** multi-agent orchestration platform.
-
-Enterprise Features
-
-• 100+ Specialized AI Agents
-• Autonomous Multi-Agent Collaboration
-• Dynamic Context Router
-• Digital Twin Runtime
-• Predictive Simulation
-• Research Automation
-• Distributed Agent Mesh
-• Experience Replay
-• Enterprise Memory System
-• Plugin Architecture
-• AWS Native Deployment
-• Kubernetes Ready
-• MCP Integration
-• Local First
-• Cloud Native
-• Zero Trust Security
-
----
-
-## Quick start (3 commands)
-
-```bash
-git clone https://github.com/YOUR_USERNAME/arctus-ai.git arctus.ai
-cd arctus.ai
-pip install -e ".[server]" && python main.py --help
 ```
-
-Then set a provider key and run:
-
-```bash
-# Strong tier (OpenAI default). Use any preset instead — see below.
-export ARCTUS_STRONG_API_KEY=sk-...           # macOS/Linux
-setx ARCTUS_STRONG_API_KEY "sk-..."           # Windows (new shell after)
-
-python main.py "refactor my parser into a class and add a test plan"
+Arctus.ai/
+├── setup.py                    # Package setup (FILE 1)
+├── pyproject.toml              # Modern Python packaging
+├── src/
+│   └── arctus/
+│       ├── __init__.py         # Package init (FILE 2)
+│       ├── main.py             # CLI entry point (FILE 3)
+│       ├── setup.py            # Provider presets (FILE 4)
+│       ├── llm.py              # LLM client (FILE 5)
+│       ├── config/
+│       │   └── __init__.py     # Config management
+│       ├── orchestrator/
+│       │   └── __init__.py     # Agent orchestration
+│       ├── agent/
+│       │   └── __init__.py     # Agent definitions
+│       └── dashboard/
+│           └── __init__.py     # Web dashboard
+├── venv/                       # Virtual environment
+└── repos/                      # Cloned repositories
 ```
 
 ---
 
-## Setup commands (full)
-
-### 1. CLI only (local-first)
+## macOS Setup Commands
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/arctus-ai.git arctus.ai
-cd arctus.ai
-pip install -e .
-export ARCTUS_STRONG_API_KEY=sk-...
-python main.py "your task"
-```
-
-### 1b. Connect to Ollama (local, no API key)
-
-# Quick Start
-
-```bash
+# ============================================
+# 1. CLONE AND ENTER PROJECT
+# ============================================
 git clone https://github.com/Dikhun/Arctus.ai.git
 cd Arctus.ai
-python3 -m pip install -e .
-python3 main.py setup ollama
-python3 main.py
+
+# ============================================
+# 2. CREATE VIRTUAL ENVIRONMENT
+# ============================================
+python3 -m venv venv
+
+# ============================================
+# 3. ACTIVATE VIRTUAL ENVIRONMENT
+# ============================================
+source venv/bin/activate
+
+# ============================================
+# 4. UPGRADE PIP AND INSTALL DEPENDENCIES
+# ============================================
+python3 -m pip install --upgrade pip
+pip install -r requirements.txt 2>/dev/null || echo "No requirements.txt, using setup.py"
+
+# ============================================
+# 5. INSTALL PACKAGE IN EDITABLE MODE
+# ============================================
+pip install -e .
+
+# ============================================
+# 6. VERIFY INSTALLATION
+# ============================================
+python3 -c "import arctus; print('OK:', arctus.__version__)"
+
+# ============================================
+# 7. SETUP PROVIDER (Choose one)
+# ============================================
+
+# --- OPTION A: Ollama (Local, Free) ---
+# First install Ollama from https://ollama.com
+# Then:
+ollama serve &                    # Start Ollama server in background
+ollama pull llama3.1              # Download a model
+arctus setup ollama               # Configure Arctus for Ollama
+arctus status                     # Verify
+
+# --- OPTION B: OpenRouter (Cloud, API Key Required) ---
+# Get key from https://openrouter.ai/keys
+export OPENROUTER_API_KEY="sk-or-v1-YOUR-KEY-HERE"
+arctus setup openrouter           # Configure for OpenRouter
+arctus status                     # Verify
+
+# --- OPTION C: OmniRoute (OpenRouter with Routing) ---
+# OmniRoute uses OpenRouter backend with smart routing
+export OMNIROUTE_API_KEY="sk-or-v1-YOUR-KEY-HERE"  # or reuse OPENROUTER_API_KEY
+arctus setup omniroute            # Configure for OmniRoute
+arctus status                     # Verify
+
+# --- OPTION D: Hugging Face (Free Tier) ---
+export HF_TOKEN="hf_YOUR_TOKEN_HERE"
+arctus setup hf                   # Configure for HF Inference API
+arctus status                     # Verify
+
+# ============================================
+# 8. LAUNCH DASHBOARD OR CLI
+# ============================================
+
+# Interactive REPL
+arctus
+
+# Run single task
+arctus "refactor my parser"
+
+# Launch web dashboard
+arctus dashboard --port 8080
+
+# Open dashboard in browser (macOS)
+open http://localhost:8080
 ```
 
-The setup command automatically:
+---
 
-- Detects whether Ollama is installed.
-- Installs Ollama if it is missing (if your installer supports this).
-- Starts the Ollama server.
-- Downloads the default model (`qwen2.5-coder:32b`) if needed.
-- Verifies the connection.
-- Configures Arctus to use the local Ollama instance.
-### 1c. Connect to OpenRouter (cloud models)
+## Windows Setup Commands (PowerShell)
+
+```powershell
+# ============================================
+# 1. CLONE AND ENTER PROJECT
+# ============================================
+git clone https://github.com/Dikhun/Arctus.ai.git
+cd Arctus.ai
+
+# ============================================
+# 2. CREATE VIRTUAL ENVIRONMENT
+# ============================================
+python -m venv venv
+
+# ============================================
+# 3. ACTIVATE VIRTUAL ENVIRONMENT
+# ============================================
+.\venv\Scripts\Activate.ps1
+
+# If execution policy blocks activation, run:
+# Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+
+# ============================================
+# 4. UPGRADE PIP AND INSTALL
+# ============================================
+python -m pip install --upgrade pip
+pip install -e .
+
+# ============================================
+# 5. VERIFY INSTALLATION
+# ============================================
+python -c "import arctus; print('OK:', arctus.__version__)"
+
+# ============================================
+# 6. SETUP PROVIDER (Choose one)
+# ============================================
+
+# --- OPTION A: Ollama (Local) ---
+# Install Ollama from https://ollama.com/download/windows
+# In separate PowerShell:
+Start-Process ollama -ArgumentList "serve" -WindowStyle Hidden
+ollama pull llama3.1
+arctus setup ollama
+arctus status
+
+# --- OPTION B: OpenRouter ---
+$env:OPENROUTER_API_KEY = "sk-or-v1-YOUR-KEY-HERE"
+arctus setup openrouter
+arctus status
+
+# --- OPTION C: OmniRoute ---
+$env:OMNIROUTE_API_KEY = "sk-or-v1-YOUR-KEY-HERE"
+# or reuse OpenRouter key:
+$env:OMNIROUTE_API_KEY = $env:OPENROUTER_API_KEY
+arctus setup omniroute
+arctus status
+
+# --- OPTION D: Hugging Face ---
+$env:HF_TOKEN = "hf_YOUR_TOKEN_HERE"
+arctus setup hf
+arctus status
+
+# ============================================
+# 7. LAUNCH
+# ============================================
+
+# Interactive mode
+arctus
+
+# Single task
+arctus "analyze this code"
+
+# Dashboard
+arctus dashboard --port 8080
+start http://localhost:8080
+```
+
+---
+
+## Windows Setup Commands (CMD / Batch)
+
+```cmd
+:: ============================================
+:: 1. CLONE AND ENTER
+:: ============================================
+git clone https://github.com/Dikhun/Arctus.ai.git
+cd Arctus.ai
+
+:: ============================================
+:: 2. CREATE AND ACTIVATE VENV
+:: ============================================
+python -m venv venv
+venv\Scripts\activate.bat
+
+:: ============================================
+:: 3. INSTALL
+:: ============================================
+python -m pip install --upgrade pip
+pip install -e .
+
+:: ============================================
+:: 4. SETUP PROVIDER
+:: ============================================
+
+:: Ollama
+set OLLAMA_HOST=http://localhost:11434
+arctus setup ollama
+
+:: OpenRouter
+set OPENROUTER_API_KEY=sk-or-v1-YOUR-KEY
+arctus setup openrouter
+
+:: OmniRoute
+set OMNIROUTE_API_KEY=sk-or-v1-YOUR-KEY
+arctus setup omniroute
+
+:: ============================================
+:: 5. RUN
+:: ============================================
+arctus
+arctus dashboard
+```
+
+---
+
+## Cross-Platform Quick Start Script
+
+Save as `setup.sh` (macOS/Linux) or `setup.ps1` (Windows):
+
+### `setup.sh` (macOS/Linux)
 
 ```bash
-export OPENROUTER_API_KEY=sk-or-...
-python main.py setup openrouter
-python main.py "refactor my parser"
+#!/bin/bash
+set -e
+
+echo "=== Arctus AI Setup ==="
+
+# Parse arguments
+PROVIDER=${1:-ollama}
+API_KEY=${2:-}
+
+# Clone if needed
+if [ ! -d "Arctus.ai" ]; then
+    git clone https://github.com/Dikhun/Arctus.ai.git
+fi
+cd Arctus.ai
+
+# Python setup
+python3 -m venv venv
+source venv/bin/activate
+pip install --upgrade pip
+pip install -e .
+
+# Configure provider
+case $PROVIDER in
+    ollama)
+        which ollama >/dev/null || { echo "Install Ollama first: https://ollama.com"; exit 1; }
+        ollama serve &
+        sleep 2
+        ollama pull llama3.1 2>/dev/null || true
+        arctus setup ollama
+        ;;
+    openrouter)
+        if [ -z "$API_KEY" ] && [ -z "$OPENROUTER_API_KEY" ]; then
+            echo "ERROR: Set OPENROUTER_API_KEY or pass as argument"
+            exit 1
+        fi
+        [ -n "$API_KEY" ] && export OPENROUTER_API_KEY="$API_KEY"
+        arctus setup openrouter
+        ;;
+    omniroute)
+        [ -n "$API_KEY" ] && export OMNIROUTE_API_KEY="$API_KEY"
+        arctus setup omniroute
+        ;;
+    hf|huggingface)
+        [ -n "$API_KEY" ] && export HF_TOKEN="$API_KEY"
+        arctus setup hf
+        ;;
+    *)
+        echo "Unknown provider: $PROVIDER"
+        echo "Usage: $0 [ollama|openrouter|omniroute|hf] [api-key]"
+        exit 1
+        ;;
+esac
+
+arctus status
+echo ""
+echo "Setup complete! Run 'arctus' for interactive mode"
+echo "Or 'arctus dashboard' for web interface"
 ```
 
-### 1d. Link to a Hugging Face-hosted instance (no local clone needed)
+### `setup.ps1` (Windows PowerShell)
 
-If Arctus is deployed on Hugging Face Spaces (see section 5), other CLIs can
-drive the **hosted** agent without cloning or pip-installing the repo:
+```powershell
+param(
+    [string]$Provider = "ollama",
+    [string]$ApiKey = ""
+)
 
+Write-Host "=== Arctus AI Setup ===" -ForegroundColor Cyan
+
+# Clone
+if (-not (Test-Path "Arctus.ai")) {
+    git clone https://github.com/Dikhun/Arctus.ai.git
+}
+Set-Location Arctus.ai
+
+# Python setup
+python -m venv venv
+.\venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
+pip install -e .
+
+# Configure provider
+switch ($Provider) {
+    "ollama" {
+        $ollama = Get-Command ollama -ErrorAction SilentlyContinue
+        if (-not $ollama) {
+            Write-Error "Install Ollama from https://ollama.com/download/windows"
+            exit 1
+        }
+        Start-Process ollama -ArgumentList "serve" -WindowStyle Hidden
+        Start-Sleep 2
+        ollama pull llama3.1
+        arctus setup ollama
+    }
+    "openrouter" {
+        if ($ApiKey) { $env:OPENROUTER_API_KEY = $ApiKey }
+        if (-not $env:OPENROUTER_API_KEY) {
+            Write-Error "Set OPENROUTER_API_KEY environment variable or pass -ApiKey"
+            exit 1
+        }
+        arctus setup openrouter
+    }
+    "omniroute" {
+        if ($ApiKey) { $env:OMNIROUTE_API_KEY = $ApiKey }
+        arctus setup omniroute
+    }
+    "hf" {
+        if ($ApiKey) { $env:HF_TOKEN = $ApiKey }
+        arctus setup hf
+    }
+    default {
+        Write-Error "Unknown provider: $Provider"
+        exit 1
+    }
+}
+
+arctus status
+Write-Host "`nSetup complete! Run 'arctus' for interactive mode" -ForegroundColor Green
+```
+
+---
+
+## CLI Commands Reference
+
+| Command | Description |
+|---------|-------------|
+| `arctus` | Start interactive REPL |
+| `arctus "do something"` | Run single task |
+| `arctus config` | Show configuration |
+| `arctus config-set '{"key":"value"}'` | Update config |
+| `arctus setup ollama` | Configure Ollama |
+| `arctus setup openrouter` | Configure OpenRouter |
+| `arctus setup omniroute` | Configure OmniRoute |
+| `arctus setup hf` | Configure Hugging Face |
+| `arctus status` | Check all providers |
+| `arctus dashboard` | Launch web dashboard |
+| `arctus show <session-id>` | View session |
+| `arctus reset <session-id>` | Clear session |
+| `arctus --help` | Show help |
+
+---
+
+## Environment Variables
+
+| Variable | Used By | Example |
+|----------|---------|---------|
+| `OPENROUTER_API_KEY` | OpenRouter | `sk-or-v1-...` |
+| `OMNIROUTE_API_KEY` | OmniRoute | `sk-or-v1-...` |
+| `OLLAMA_HOST` | Ollama | `http://localhost:11434` |
+| `HF_TOKEN` | Hugging Face | `hf_...` |
+
+---
+
+## Fixing the Original Errors
+
+| Error | Cause | Fix Applied |
+|-------|-------|-------------|
+| `No module named 'arctus.setup'` | `setup.py` at root, no package init | Moved to `src/arctus/setup.py`, added all `__init__.py` files |
+| `anthropic/claude-3.5-sonnet HTTP 404` | Missing date suffix in model ID | Corrected to `anthropic/claude-3.5-sonnet-20241022` |
+| `zsh: command not found: #` | Comments interpreted by shell | Fixed: use proper shell syntax, no inline `#` after commands |
+| `unknown file attribute: i` | `ipython3` typo or bad alias | Use `python3` or `python` directly |
+| Case-sensitive collision | `Core.py` vs `core.py` | Use consistent lowercase: `core.py` |
+
+---
+
+## Dashboard Access
+
+After running `arctus dashboard`:
+
+- **Local**: http://localhost:8080
+- **Network**: http://YOUR_IP:8080
+
+Connect other CLI tools via the API:
 ```bash
-python main.py connect https://your-user-arctus.hf.space
-# optionally: --key <token> if the instance requires auth
-python main.py "generate a test suite for auth.py"
+# Get status
+curl http://localhost:8080/api/status
+
+# The dashboard exposes REST endpoints for integration
 ```
-
-This rewrites both tiers to point at the HF Space, so every task runs
-server-side transparently.
-
-### 2. Local + dashboard (FastAPI on :7860)
-
-```bash
-pip install -e ".[server]"
-python -m server.app
-# open http://localhost:7860
-```
-
-### 3. Docker (with OmniRoute bundled)
-
-```bash
-docker build -t arctus-ai .
-docker run -p 7860:7860 -p 20128:20128 -e OPENAI_API_KEY=sk-... arctus-ai
-# :7860  = Arctus dashboard / API
-# :20128 = OmniRoute (local 160+ provider router, pre-installed)
-# open http://localhost:7860
-```
-
-OmniRoute is installed from npm (`omniroute`) at build time and auto-starts
-inside the container. The fast tier points at `http://localhost:20128/v1` by
-default. Configure OmniRoute providers via `~/.config/omniroute/config.json`.
-
-### 4. Docker Compose (OmniRoute + reference repos)
-
-```bash
-# Once: fetch the 12 reference repos into ./repos (opt-in)
-python scripts/clone_repos.py
-
-# Your keys in .env (see docker-compose.yml)
-echo "OPENAI_API_KEY=sk-..." > .env
-
-docker compose up
-# :7860  = Arctus dashboard
-# :20128 = OmniRoute
-```
-
-### 5. Hugging Face Spaces
-
-Push this repo to a HF Space (Docker SDK type). In **Settings → Secrets** add:
-
-```
-OPENAI_API_KEY        = sk-...
-OPENROUTER_API_KEY    = sk-or-...     (if using OpenRouter)
-ARCTUS_OMNIROUTE_KEY  = ...           (if using OmniRoute)
-ARCTUS_TIER           = free          (default subscription tier)
-```
-
-The server reads them from env. **No client headers carry keys.**
-Users then connect with `python main.py connect https://your-space.hf.space`.
-
 ---
 
 ## Provider presets
