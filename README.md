@@ -400,18 +400,6 @@ Write-Host "`nSetup complete! Run 'arctus' for interactive mode" -ForegroundColo
 
 ---
 
-## Fixing the Original Errors
-
-| Error | Cause | Fix Applied |
-|-------|-------|-------------|
-| `No module named 'arctus.setup'` | `setup.py` at root, no package init | Moved to `src/arctus/setup.py`, added all `__init__.py` files |
-| `anthropic/claude-3.5-sonnet HTTP 404` | Missing date suffix in model ID | Corrected to `anthropic/claude-3.5-sonnet-20241022` |
-| `zsh: command not found: #` | Comments interpreted by shell | Fixed: use proper shell syntax, no inline `#` after commands |
-| `unknown file attribute: i` | `ipython3` typo or bad alias | Use `python3` or `python` directly |
-| Case-sensitive collision | `Core.py` vs `core.py` | Use consistent lowercase: `core.py` |
-
----
-
 ## Dashboard Access
 
 After running `arctus dashboard`:
