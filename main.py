@@ -1,4 +1,3 @@
-<parameter name="language">python</parameter>
 # ============================================================================
 # FILE 3: src/arctus/main.py - CLI Entry Point & Command Router
 # ============================================================================
