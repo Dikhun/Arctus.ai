@@ -1,3 +1,4 @@
+cat << 'EOF' > src/arctus/main.py
 # ============================================================================
 # FILE 3: src/arctus/main.py - CLI Entry Point & Command Router
 # ============================================================================
@@ -540,3 +541,4 @@ def main() -> int:
 # Make this module runnable
 if __name__ == "__main__":
     sys.exit(main())
+EOF
