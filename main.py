@@ -1,16 +1,3 @@
-<parameter name="language">python</parameter>
-# ============================================================================
-# FILE 3: src/arctus/main.py - CLI Entry Point & Command Router
-# ============================================================================
-# Location: project_root/src/arctus/main.py
-# Purpose: Main CLI interface, command parsing, and execution routing
-# FIXES APPLIED:
-#   - Fixed import: arctus.setup (was failing due to missing __init__.py)
-#   - Fixed sys.exit() calls to prevent traceback on normal exits
-#   - Added proper error handling for missing modules
-#   - Fixed zsh comment interpretation in help text
-# ============================================================================
-
 import sys
 import os
 import json
