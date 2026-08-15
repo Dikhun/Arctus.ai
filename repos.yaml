@@ -9,6 +9,89 @@
 #   - GitHub (if permitted)
 # Local cloning is optional and primarily for offline development.
 # All repository usage is subject to the respective license terms.
+# This block applies globally to ALL repositories declared
+# anywhere in this file. Individual repository entries do not
+# need to be modified.
+#
+# Purpose:
+# - Make every registered repository discoverable to the Planner
+# - Do not modify the existing Planner
+# - Do not clone/load repositories at startup
+# - Resolve repositories only when a plan requires them
+# - Automatically expose repository capabilities
+# - Apply the same behavior to current and future repositories
+# ============================================================
+
+x-planner-pin:
+  enabled: true
+
+  scope:
+    apply_to: all_repositories
+    future_repositories: true
+    recursive: true
+
+  planner_visibility:
+    enabled: true
+    mode: capability_metadata
+    expose:
+      - name
+      - note
+      - tags
+      - language
+      - priority
+      - capabilities
+      - role
+
+  resolution:
+    mode: lazy
+    trigger: planner_requirement
+    repository_selection: capability_match
+    clone: on_demand
+    load: on_demand
+    import: on_demand
+    execute: on_demand
+
+  lifecycle:
+    startup:
+      clone_repositories: false
+      load_repositories: false
+      execute_repositories: false
+      build_capability_index: true
+
+    runtime:
+      resolve_only_when_required: true
+      materialize_only_when_selected: true
+      reuse_cached_repository: true
+
+    cleanup:
+      remove_unused_runtime_resources: true
+
+  capability_discovery:
+    enabled: true
+    derive_from:
+      - name
+      - note
+      - tags
+      - language
+      - role
+      - capabilities
+
+  planner_bridge:
+    enabled: true
+    planner_modification_required: false
+    inject_repository_awareness: true
+    inject_mode: metadata_only
+
+  security:
+    validate_before_execution: true
+    require_policy_check: true
+    require_permission_check: true
+    require_sandbox: true
+
+  precedence:
+    global_defaults: true
+    repository_specific_overrides: true
+    
 - name: Unlimited-OCR
   url: https://github.com/baidu/Unlimited-OCR.git
   note: "One-shot long-horizon OCR and document parsing with constant KV cache"
