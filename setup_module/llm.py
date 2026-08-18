@@ -1,13 +1,3 @@
-<parameter name="language">python</parameter>
-# ============================================================================
-# FILE 5: src/arctus/llm.py - LLM Client with Fixed Model Endpoints
-# ============================================================================
-# FIXES:
-#   - Corrected all OpenRouter model IDs to include date suffixes
-#   - Added proper error handling for 404 errors
-#   - Added model ID validation before request
-# ============================================================================
-
 import os
 import json
 import urllib.request
