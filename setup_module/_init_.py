@@ -1,11 +1,3 @@
-<parameter name="language">python</parameter>
-# ============================================================================
-# FILE 2: src/arctus/__init__.py - Package Root Initialization
-# ============================================================================
-# Location: project_root/src/arctus/__init__.py
-# Purpose: Package-level imports, version, and configuration discovery
-# ============================================================================
-
 """
 Arctus AI - Local-first multi-agent orchestration framework.
 
