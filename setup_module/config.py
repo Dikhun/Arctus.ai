@@ -1,18 +1,3 @@
-<parameter name="language">python</parameter>
-# ============================================================================
-# REQUIRED: src/arctus/__init__.py 
-# (Already provided in FILE 2 above - this is the package root init)
-# ============================================================================
-
-# Additional subpackage __init__.py files needed:
-
-# ============================================================================
-# FILE: src/arctus/config/__init__.py
-# ============================================================================
-"""
-Configuration management for Arctus.
-"""
-
 import json
 from pathlib import Path
 from typing import Dict, Any, Optional
