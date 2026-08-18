@@ -13,7 +13,7 @@ if str(_PROJECT_ROOT / "src") not in sys.path:
 
 # Internal imports with graceful fallback
 try:
-    from arctus.setup import setup_provider, check_status, PRESETS
+    from arctus.setup import setup_provider, PRESETS
     from arctus.config import Config, get_config_path
     from arctus.orchestrator import Orchestrator
     from arctus.llm import LLMClient, LLMError
