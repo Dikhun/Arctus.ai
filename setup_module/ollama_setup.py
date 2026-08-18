@@ -1,11 +1,3 @@
-<parameter name="language">python</parameter>
-# ============================================================================
-# FILE 1: setup.py - Package Setup & CLI Entry Points
-# ============================================================================
-# Location: project_root/setup.py
-# Purpose: Defines package metadata, dependencies, and console scripts
-# ============================================================================
-
 from setuptools import setup, find_packages
 import os
 
