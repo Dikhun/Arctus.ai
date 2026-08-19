@@ -1,17 +1,3 @@
-<parameter name="language">python</parameter>
-# ============================================================================
-# FILE 4: src/arctus/setup.py - Provider Setup & Configuration
-# ============================================================================
-# Location: project_root/src/arctus/setup.py
-# Purpose: Provider preset management, API key configuration, health checks
-# FIXES APPLIED:
-#   - Fixed module name: was 'setup.py' at root, now proper package module
-#   - Added __init__.py discovery so 'from arctus.setup import check_status' works
-#   - Fixed OpenRouter model endpoints (404 errors from wrong model IDs)
-#   - Added OmniRoute support (routes to OpenRouter with custom headers)
-#   - Fixed JSON serialization for config objects
-# ============================================================================
-
 import os
 import json
 import urllib.request
