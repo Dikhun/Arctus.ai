@@ -510,3 +510,7 @@ class QueenAgent:
 def estimate_tokens_of(char_count: int) -> int:
     # Same heuristic as rate_limit.estimate_tokens; kept local for clarity.
     return max(1, char_count // 4)
+
+class Orchestrator(QueenAgent):
+    """Public orchestrator API for Arctus.ai."""
+    pass
